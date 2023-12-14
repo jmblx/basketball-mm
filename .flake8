@@ -1,0 +1,19 @@
+[flake8]
+exclude =
+    .git,
+    __pycache__,
+    docs/source/conf.py,
+    old,
+    build,
+    dist,
+    venv,
+    migrations/,
+    versions/
+
+application-import-names = src
+
+import-order-style = pycharm
+
+ignore = F841, F401, F403, F405
+
+inline-quotes = "

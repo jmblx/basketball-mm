@@ -1,0 +1,66 @@
+version: "3.7"
+services:
+  db:
+    image: postgres:15
+    container_name: db_app
+    command: -p 5432
+    expose:
+      - 5432
+    restart: always
+    env_file:
+      - .env-non-dev
+    networks:
+      - custom
+    volumes:
+      - db-data:/var/lib/postgresql/data
+  fastapi_app:
+    build:
+      context: .
+    env_file:
+      - .env-non-dev
+    container_name: fastapi_app
+    command: [ "/fastapi_app/docker/app.sh" ]
+    ports:
+      - "8000:8000"
+    expose:
+      - 8000
+    networks:
+      - custom
+    depends_on:
+      - db
+  prometheus:
+    depends_on:
+      - fastapi_app
+    image: prom/prometheus:v2.43.0
+    container_name: prometheus
+    restart: unless-stopped
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - "9090:9090"
+    networks:
+      - custom
+  grafana:
+    image: grafana/grafana:8.5.22
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - grafana-config:/etc/grafana
+    depends_on:
+      - prometheus
+    restart: always
+    networks:
+      - custom
+    user: "0"
+networks:
+  custom:
+    driver: bridge
+volumes:
+  db-data:
+  grafana-data:
+  grafana-config:
+  prometheus-data:
