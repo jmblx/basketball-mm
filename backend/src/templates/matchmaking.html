@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Matchmaking System</title>
+</head>
+<body>
+    <h1>Enter Your Bearer Token</h1>
+    <input type="text" id="tokenInput" placeholder="Bearer Token">
+    <button onclick="getUserData()">Get User Data</button>
+
+    <h2>User Data:</h2>
+    <pre id="userData"></pre>
+
+    <button onclick="startMatchmaking()">Start Matchmaking</button>
+    <div id="matchmakingStatus">Matchmaking status: Waiting to start</div>
+
+    <script>
+        let websocket;
+
+        async function getUserData() {
+            const token = document.getElementById('tokenInput').value;
+            const response = await fetch('/profile/', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                document.getElementById('userData').textContent = JSON.stringify(data, null, 2);
+                document.getElementById('userData').setAttribute('data-user-id', data.id);
+            } else {
+                document.getElementById('userData').textContent = 'Failed to fetch user data.';
+            }
+        }
+
+        async function startMatchmaking() {
+            const userId = document.getElementById('userData').getAttribute('data-user-id');
+            if (userId) {
+                var ws = new WebSocket(`ws://localhost:8000/matchmaking/ws/${userId}`)
+
+                websocket.onopen = function(event) {
+                    document.getElementById('matchmakingStatus').textContent = 'Matchmaking started...';
+                    // Отправьте любые данные на сервер, если это необходимо
+                    // websocket.send('Your message');
+                };
+
+                websocket.onmessage = function(event) {
+                    document.getElementById('matchmakingStatus').textContent = `Message from server: ${event.data}`;
+                };
+
+                websocket.onerror = function(event) {
+                    console.error('WebSocket error:', event);
+                };
+            } else {
+                alert('User ID is not available. Please fetch user data first.');
+            }
+        }
+    </script>
+</body>
+</html>

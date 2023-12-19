@@ -2,6 +2,7 @@ import smtplib
 import uuid
 from email.message import EmailMessage
 from typing import Optional
+import secrets
 
 from fastapi import Depends, Request
 from fastapi_users import (
@@ -17,6 +18,7 @@ from config import SECRET_AUTH, SMTP_HOST, SMTP_PORT
 from auth.models import User
 
 from config import SMTP_PASSWORD, SMTP_USER
+from database import async_session_maker
 
 
 class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
@@ -26,7 +28,24 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     async def on_after_register(
         self, user: User, request: Optional[Request] = None
     ):
-        print(f"User {user.id} has registered.")
+        async with async_session_maker() as session:
+            token = secrets.token_urlsafe(32)
+            user.email_confirmation_token = token
+        email = EmailMessage()
+        email['Subject'] = 'Подтвердите регистрацию'
+        email['From'] = SMTP_USER
+        email['To'] = user.email
+        email_content = f"""
+            Здравствуйте! Если вы зарегестрировались на сайте basketball-mm,
+            используя эту почту, то перейдите по следующей ссылке: localhost:8000/custom/email-confirmation/{token}/
+        """
+        email.set_content(
+            email_content,
+            subtype='html'
+        )
+        with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT) as server:
+            server.login(SMTP_USER, SMTP_PASSWORD)
+            server.send_message(email)
 
     async def on_after_forgot_password(
         self, user: User, token: str, request: Optional[Request] = None

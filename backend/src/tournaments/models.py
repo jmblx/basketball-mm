@@ -1,0 +1,110 @@
+import datetime
+import enum
+import math
+from typing import List, Annotated
+
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from auth.models import Team, User
+from database import Base
+from my_type_notation import intpk, added_at
+
+
+class StatusEvent(enum.Enum):
+    opened = "OPENED"
+    pending = "PENDING"
+    actived = "ACTIVED"
+    finished = "FINISHED"
+
+
+class Tournament(Base):
+    __tablename__ = "tournament"
+
+    @staticmethod
+    def default_number_stages(context):
+        return int(
+            math.log2(context.get_current_parameters()["number_participants"])
+        )
+
+    id: Mapped[intpk]
+    status: Mapped[StatusEvent]
+    placemark: Mapped[str]
+    number_participants: Mapped[int]
+    number_stages: Mapped[int] = mapped_column(
+        default=default_number_stages
+    )
+    winner_id: Mapped[int] = mapped_column(ForeignKey("team.id"), nullable=True)
+    start_date: Mapped[added_at] = mapped_column(
+        nullable=True
+    )
+    end_date: Mapped[added_at]
+    teams: Mapped[List["Team"]] = relationship(
+        back_populates="tournament",
+        uselist=True,
+        secondary="team_tournament",
+    )
+    matches: Mapped[List["Match"]] = relationship(
+        back_populates="tournament",
+        uselist=True,
+    )
+    pathfile: Mapped[str]
+
+
+class ParentMatch:
+    id: Mapped[intpk]
+    status: Mapped[StatusEvent]
+    start_date: Mapped[datetime.datetime]
+    end_date: Mapped[datetime.datetime] = mapped_column(nullable=True)
+
+
+class Match(Base, ParentMatch):
+    __tablename__ = "match"
+
+    teams: Mapped[List["Team"]] = relationship(
+        back_populates="matches", uselist=True, secondary="team_match"
+    )
+    stage: Mapped[int] = mapped_column(nullable=True)
+    number_in_stage: Mapped[int] = mapped_column(nullable=True)
+    winner_id: Mapped[int] = mapped_column(ForeignKey("team.id"), nullable=True)
+    tournament_id: Mapped[int] = mapped_column(ForeignKey("tournament.id"))
+    tournament: Mapped["Tournament"] = relationship(
+        back_populates="matches", uselist=False
+    )
+
+
+class SoloMatch(Base, ParentMatch):
+    __tablename__ = "solomatch"
+
+
+    players: Mapped[List["User"]] = relationship(
+        "User",
+        back_populates="solomatches",
+        uselist=True,
+        secondary="user_solomatch"
+    )
+    winner_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=True)
+
+
+class TeamMatch(Base):
+    __tablename__ = "team_match"
+
+    id: Mapped[intpk]
+    team_fk: Mapped[int] = mapped_column(ForeignKey("team.id"), nullable=True)
+    match_fk: Mapped[int] = mapped_column(ForeignKey("match.id"))
+
+
+class UserSoloMatch(Base):
+    __tablename__ = "user_solomatch"
+
+    id: Mapped[intpk]
+    user_fk: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=True)
+    solomatch_fk: Mapped[int] = mapped_column(ForeignKey("solomatch.id"))
+
+
+class TeamTournament(Base):
+    __tablename__ = "team_tournament"
+
+    id: Mapped[intpk]
+    team_fk: Mapped[int] = mapped_column(ForeignKey("team.id"))
+    tournament_fk: Mapped[int] = mapped_column(ForeignKey("tournament.id"))

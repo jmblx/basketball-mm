@@ -11,7 +11,7 @@ pip install -r requirements\dev.txt
 ```
 ### Запустить сервер
 ```shell
-uvicorn src.main:app --reload
+uvicorn main:app --reload
 ```
 ### Миграции
 ```shell
