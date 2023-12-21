@@ -53,8 +53,8 @@ class Tournament(Base):
 
 class ParentMatch:
     id: Mapped[intpk]
-    status: Mapped[StatusEvent]
-    start_date: Mapped[datetime.datetime]
+    status: Mapped[StatusEvent] = mapped_column(default=StatusEvent.pending)
+    start_date: Mapped[datetime.datetime] = mapped_column(nullable=True)
     end_date: Mapped[datetime.datetime] = mapped_column(nullable=True)
 
 

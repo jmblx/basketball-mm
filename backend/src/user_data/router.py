@@ -23,7 +23,7 @@ async def get_user_data(
         "nickname": user.nickname,
         "registered_at": user.registered_at,
         "id": user.id,
-        "rating": user.solo_raiting,
+        "rating": user.solo_rating,
         "details": None
     }
 

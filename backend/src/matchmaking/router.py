@@ -9,6 +9,7 @@ from fastapi import (
     WebSocketException, Depends, Request
 )
 from fastapi.templating import Jinja2Templates
+from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth.models import User
@@ -28,28 +29,37 @@ class ConnectionManager:
         await websocket.accept()
         self.active_connections[user_id] = websocket
 
-    def disconnect(self, user_id: UUID):
+    async def disconnect(self, user_id: UUID):
         if user_id in self.active_connections:
             del self.active_connections[user_id]
+            async with async_session_maker() as session:
+                player = await session.get(User, user_id)
+                player.searching = False
+                await session.add(player)
+                await session.commit()
 
-    async def find_match(self, player_id: UUID, session: AsyncSession):
-        player = await session.get(User, player_id)
-        while player and player.searching:
-            async for other_player in await (session.execute(
-                session.query(User).filter(User.searching == True, User.id != player.id)
-            )).scalars():
-                if abs(other_player.solo_rating - player.solo_rating) <= 100:
-                    match = SoloMatch(players=[player, other_player], status=SoloMatch.status.pending)
-                    session.add(match)
-                    await session.commit()
-                    await self.active_connections[player.id].send_text(f"Match found with player {other_player.id}")
-                    await self.active_connections[other_player.id].send_text(f"Match found with player {player.id}")
-                    player.searching = False
-                    other_player.searching = False
-                    session.add_all([player, other_player])
-                    await session.commit()
-                    return
-            await asyncio.sleep(3)
+    async def find_match(self, player_id: UUID):
+        async with async_session_maker() as session:
+            player = await session.get(User, player_id)
+            while player and player.searching:
+                result = await session.execute(
+                    select(User).where(
+                        and_(User.searching == True, User.id != player.id)
+                    )
+                )
+                for other_player in result.scalars():
+                    if abs(other_player.solo_rating - player.solo_rating) <= 100:
+                        match = SoloMatch(players=[player, other_player])
+                        session.add(match)
+                        await session.commit()
+                        player.searching = False
+                        other_player.searching = False
+                        session.add_all([player, other_player])
+                        await session.commit()
+                        await manager.disconnect(player.id)
+                        await manager.disconnect(other_player.id)
+                        return
+                await asyncio.sleep(3)
 
     async def send_personal_message(self, message: str, websocket: WebSocket):
         await websocket.send_text(message)
@@ -60,13 +70,8 @@ manager = ConnectionManager()
 
 @router.get("/")
 def get_chat_page(request: Request):
-    logger.debug("Your debug message")
     return templates.TemplateResponse("matchmaking.html", {"request": request})
 
-import logging
-
-logger = logging.getLogger("uvicorn")
-logger.setLevel(logging.DEBUG)
 
 @router.websocket("/ws/{player_id}")
 async def websocket_endpoint(
@@ -74,7 +79,6 @@ async def websocket_endpoint(
         player_id,
 ):
     async with async_session_maker() as session:
-        logger.debug("Your debug message")
         await manager.connect(websocket, player_id)
         player = await session.get(User, player_id)
         player.searching = True
@@ -85,10 +89,6 @@ async def websocket_endpoint(
             await websocket.close(code=1000)
             return
         try:
-            while True:
-                data = await websocket.receive_text()
-                await manager.send_personal_message(f"You wrote: {data}", websocket)
+            await manager.find_match(player_id)
         except WebSocketDisconnect:
-            player.searching = False
-            await session.commit()
-            manager.disconnect(player.id)
+            await manager.disconnect(player.id)
