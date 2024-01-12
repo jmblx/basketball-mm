@@ -64,11 +64,12 @@ async def add_new_team(
     user: User = Depends(current_user),
     session: AsyncSession = Depends(get_async_session),
 ):
-    new_team_instance = Team(**team.model_dump())
-    session.add(new_team_instance)
+    team = Team(**team.model_dump())
+    team.captain_id = user.id
+    session.add(team)
     await session.flush()
     stmt = insert(UserTeam).values(
-        {"team_id": new_team_instance.id, "user_id": user.id}
+        {"team_id": team.id, "user_id": user.id}
     )
     await session.execute(stmt)
     await session.commit()
@@ -117,3 +118,20 @@ async def register_team_in_tournament(
     else:
         response.status_code = HTTP_400_BAD_REQUEST
         return {"status": "denied", "details": "tournament not OPENED now"}
+
+
+@router.post('/change-search-mode')
+async def change_search_mode(
+    team_id: int,
+    user: User = Depends(current_user),
+    session: AsyncSession = Depends(get_async_session),
+):
+    team = await session.get(Team, team_id)
+    if team.captain_id == user.id:
+        team.is_captain_only_search = False if team.is_captain_only_search \
+            else True
+        await session.commit()
+        return "Настройки поиска обновлены"
+    else:
+        return "Ошибка: только капитан может изменить эти настройки"
+

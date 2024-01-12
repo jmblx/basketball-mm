@@ -1,5 +1,6 @@
 import datetime
 import random
+from uuid import UUID
 
 from sqlalchemy import insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -130,3 +131,14 @@ async def get_tournaments(
             result["data"][f"tournament_{tournament}"] = tournament_obj
 
         return result
+
+
+def get_match_result_data(player_match_result: dict) -> tuple:
+    return (player_match_result.get("id"), player_match_result.get("score"))
+
+
+def form_player_json(player_id: UUID, score: int):
+    return {
+        "id": player_id,
+        "score": score,
+    }

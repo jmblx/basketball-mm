@@ -12,6 +12,7 @@ from fastapi_users import (
     models,
     schemas,
 )
+from sqlalchemy import func
 
 from auth.utils import get_user_db
 from config import SECRET_AUTH, SMTP_HOST, SMTP_PORT
@@ -87,7 +88,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         )
         password = user_dict.pop("password")
         user_dict["hashed_password"] = self.password_helper.hash(password)
-
+        user_dict["search_vector"] = func.to_tsvector('russian', user_dict["nickname"])
         created_user = await self.user_db.create(user_dict)
 
         await self.on_after_register(created_user, request)

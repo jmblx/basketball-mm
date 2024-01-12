@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>5x5 Matchmaking System</title>
+    <script>
+        var ws;
+        var matchId;
+
+        async function getUserData() {
+            const token = document.getElementById('tokenInput').value;
+            const response = await fetch('/profile/', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                document.getElementById('userData').textContent = JSON.stringify(data, null, 2);
+                document.getElementById('userData').setAttribute('data-user-id', data.id);
+                startWebSocket(data.id);
+            } else {
+                document.getElementById('userData').textContent = 'Failed to fetch user data.';
+            }
+        }
+
+        function startWebSocket(userId) {
+             ws = new WebSocket(`ws://localhost:8000/finding-match/5x5/ws?userid=${userId}`);
+
+            ws.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                if (data.action === 'matchFound') {
+                 matchId = Number(data.matchId)
+                 document.getElementById('matchmakingStatus').textContent = `Match with ID ${data.matchId} found. Please confirm your readiness.`;
+                 document.getElementById('confirmReady').style.display = 'block';
+                } else if (data.action === 'matchStarted') {
+                    document.getElementById('matchmakingStatus').textContent = 'Match is starting...';
+                }
+            };
+
+            ws.onerror = function(event) {
+                console.error('WebSocket error:', event);
+            };
+        }
+
+        async function startMatchmaking() {
+            const teamId = document.getElementById('teamId').value;
+            if (teamId) {
+                const response = await fetch(`/finding-match/5x5/start_search/${teamId}`, {
+                    method: 'POST'
+                });
+                if (response.ok) {
+                    document.getElementById('matchmakingStatus').textContent = 'Searching for a match...';
+                }
+            } else {
+                alert('Team ID is required to start matchmaking.');
+            }
+        }
+
+    function confirmReady() {
+        console.log(matchId);
+        const userId = document.getElementById('userData').getAttribute('data-user-id');
+        if (matchId && userId) {
+            fetch(`/finding-match/5x5/confirm_ready/${matchId}/${userId}`, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    if (data.status === 'confirmed') {
+                        document.getElementById('matchmakingStatus').textContent = 'You confirmed the match.';
+                    }
+                });
+        }
+        document.getElementById('confirmReady').style.display = 'none';
+    }
+    </script>
+</head>
+<body>
+    <h1>5x5 Matchmaking</h1>
+    <input type="text" id="tokenInput" placeholder="Bearer Token">
+    <button onclick="getUserData()">Get User Data</button>
+
+    <h2>User Data:</h2>
+    <pre id="userData"></pre>
+
+    <input type="text" id="teamId" placeholder="Enter Team ID">
+    <button onclick="startMatchmaking()">Start Matchmaking</button>
+    <div id="matchmakingStatus">Waiting to start matchmaking...</div>
+    <button id="confirmReady" style="display:none;" onclick="confirmReady()">Confirm Ready</button>
+</body>
+</html>

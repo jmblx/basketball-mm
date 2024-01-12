@@ -13,6 +13,7 @@
 
     <button onclick="startMatchmaking()">Start Matchmaking</button>
     <div id="matchmakingStatus">Matchmaking status: Waiting to start</div>
+    <button id="confirmReady" style="display:none;" onclick="confirmReady()">Confirm Ready</button>
 
     <script>
         let websocket;
@@ -38,16 +39,23 @@
         async function startMatchmaking() {
             const userId = document.getElementById('userData').getAttribute('data-user-id');
             if (userId) {
-                var ws = new WebSocket(`ws://localhost:8000/matchmaking/ws/${userId}`)
+                websocket = new WebSocket(`ws://localhost:8000/finding-match/solo/ws/${userId}`);
 
                 websocket.onopen = function(event) {
                     document.getElementById('matchmakingStatus').textContent = 'Matchmaking started...';
-                    // Отправьте любые данные на сервер, если это необходимо
-                    // websocket.send('Your message');
                 };
 
                 websocket.onmessage = function(event) {
-                    document.getElementById('matchmakingStatus').textContent = `Message from server: ${event.data}`;
+                    const data = JSON.parse(event.data);
+                    if (data.action === 'matchFound') {
+                        document.getElementById('matchmakingStatus').textContent = `Match found with player ${data.opponentId}`;
+                        document.getElementById('confirmReady').style.display = 'block';
+                    } else if (data.action === 'matchStarted') {
+                        document.getElementById('matchmakingStatus').textContent = 'Match is starting...';
+                    }
+                        if (data.action === 'matchStarted') {
+                            window.location.href = `/match/${data.matchId}`;
+                        }
                 };
 
                 websocket.onerror = function(event) {
@@ -56,6 +64,11 @@
             } else {
                 alert('User ID is not available. Please fetch user data first.');
             }
+        }
+
+        function confirmReady() {
+            websocket.send(JSON.stringify({ action: "confirmReady" }));
+            document.getElementById('confirmReady').style.display = 'none';
         }
     </script>
 </body>
