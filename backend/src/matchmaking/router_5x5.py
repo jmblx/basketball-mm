@@ -90,8 +90,8 @@ async def start_search(
     team = (await session.execute(
         select(Team).options(joinedload(Team.players)).where(Team.id == team_id)
     )).unique().scalar_one()
-    await add_team_to_search(team_id, team.rating, redis)
-    background_tasks.add_task(search_for_match, team_id, team.rating, redis)
+    await add_team_to_search(team_id, team.rating_5x5, redis)
+    background_tasks.add_task(search_for_match, team_id, team.rating_5x5, redis)
     return {"message": "Search started"}
 
 

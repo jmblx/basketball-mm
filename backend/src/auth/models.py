@@ -23,7 +23,7 @@ class League(enum.Enum):
 
 
 class Matchmaking:
-    rating_5x5: Mapped[int] = mapped_column(default=1000)
+    rating_5x5: Mapped[int] = mapped_column(default=1000, nullable=True)
     match5x5_wins: Mapped[default_int]
     match5x5_loses: Mapped[default_int]
     match5x5_winrate: Mapped[winrate]

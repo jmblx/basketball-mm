@@ -64,7 +64,7 @@ class NotSoloMatch:
     loser_id: Mapped[team_fk]
 
 
-class Match(Base, ParentMatch):
+class Match(Base, ParentMatch, NotSoloMatch):
     __tablename__ = "match"
 
     teams: Mapped[List["Team"]] = relationship(
@@ -78,7 +78,7 @@ class Match(Base, ParentMatch):
     )
 
 
-class Match5x5(Base, ParentMatch):
+class Match5x5(Base, ParentMatch, NotSoloMatch):
     __tablename__ = "match_5x5"
 
     scores: Mapped[scores_mm]

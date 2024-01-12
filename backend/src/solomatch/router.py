@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth.models import User
 from database import get_async_session
-from solomatch.schemas import SetMatchResultRequest
+from solomatch.schemas import SetSoloMatchResult
 from tournaments.models import SoloMatch
 
 router = fastapi.APIRouter(prefix="/solomatch", tags=["matchmaking"])
@@ -14,7 +14,7 @@ router = fastapi.APIRouter(prefix="/solomatch", tags=["matchmaking"])
 @router.put("/set-match-result")
 async def set_solomatch_result(
     match_id: int,
-    match_result: SetMatchResultRequest,
+    match_result: SetSoloMatchResult,
     session: AsyncSession = Depends(get_async_session),
 ):
     first_player_id = match_result.first_player_result.id
