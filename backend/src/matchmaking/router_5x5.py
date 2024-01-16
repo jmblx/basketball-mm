@@ -12,7 +12,7 @@ from typing import List
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, selectinload
 
 from auth.models import Team
 from database import get_async_session, async_session_maker
@@ -78,6 +78,7 @@ async def find_opponent(team_id: int, team_rating: int, threshold: int, redis):
         print(int(opponent_id), opponent_rating)
         if int(opponent_id) != team_id:
             return int(opponent_id), int(opponent_rating)
+    return None, None
 
 
 @router.post("/start_search/{team_id}")
@@ -103,6 +104,7 @@ async def stop_search(team_id: int, redis=Depends(get_redis)):
 
 async def search_for_match(team_id, team_rating, redis):
     opponent_id, _ = await find_opponent(team_id, team_rating, 100, redis)
+    print(f"opp: {opponent_id}")
     if opponent_id:
         match_id, player_ids = await create_potential_match(team_id, opponent_id, redis)
         await notify_team_about_match(player_ids, match_id)
@@ -165,6 +167,49 @@ async def confirm_ready(match_id: int, player_id: UUID, redis=Depends(get_redis)
         await finalize_match(match_id, redis)
 
     return {"status": "confirmed"}
+
+
+async def notify_team(team_id, action, message):
+    async with async_session_maker() as session:
+        team = (await session.execute(
+            select(Team).options(joinedload(Team.players)).where(Team.id == team_id)
+        )).unique().scalar_one()
+        for player_id in team.players:
+            if player_id in connected_users:
+                await connected_users[player_id].send_text(json.dumps({"action": action, "message": message}))
+
+
+@router.post("/not_ready/{match_id}/{team_id}")
+async def not_ready(
+    match_id: int,
+    team_id: int,
+
+    redis=Depends(get_redis),
+    session: AsyncSession = Depends(get_async_session),
+):
+    match = (await session.execute(
+        select(Match5x5).options(selectinload(Match5x5.teams)).where(Match5x5.id == match_id)
+    )).unique().scalar_one()
+    if match:
+        match.status = StatusEvent.cancelled
+        session.add(match)
+        await session.commit()
+    opposing_team_id = match.teams[0].id if team_id != match.teams[0].id else match.teams[1].id
+    opposing_team = await session.get(Team, opposing_team_id)
+    await redis.delete(f"match:{match_id}:confirmed_players")
+    await redis.delete(f"match:{match_id}:players")
+
+    await redis.zrem('team_search_queue', str(team_id))
+    await redis.zrem('team_search_queue', str(opposing_team_id))
+    print(opposing_team_id)
+    await notify_team(team_id, "matchCancelled", "Match cancelled by your team.")
+    await notify_team(opposing_team_id, "matchResearch", "Searching for a new match.")
+    if opposing_team:
+        await add_team_to_search(opposing_team_id, opposing_team.rating_5x5, redis)
+        await search_for_match(opposing_team_id, opposing_team.rating_5x5, redis)
+    return {"status": "search restarted for opposing team"}
+
+
 
 
 @router.get("/")

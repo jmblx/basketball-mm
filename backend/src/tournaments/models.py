@@ -10,7 +10,6 @@ from auth.models import Team, User
 from database import Base
 from my_type_notation import intpk, added_at, scores_mm, team_fk
 
-
 class StatusEvent(enum.Enum):
     opened = "OPENED"
     pending = "PENDING"

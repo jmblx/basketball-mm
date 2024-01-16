@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from redis import asyncio as aioredis
+from sqlalchemy import text
 from starlette_exporter import handle_metrics
 from starlette_exporter import PrometheusMiddleware
 
@@ -15,6 +16,7 @@ from auth.base_config import (
 from auth.schemas import UserCreate, UserRead, UserUpdate
 # from config import SENTRY_URL, SECRET_AUTH
 from auth.custom_auth_router import router as custom_auth_router
+from database import async_session_maker
 from matchmaking.router import router as matchmaking_router
 from matchmaking.router_5x5 import router as matchmaking_5x5_router
 from matchmaking.router_5x5_add import router as matchmaking_5x5_router_add

@@ -26,16 +26,29 @@
         }
 
         function startWebSocket(userId) {
-             ws = new WebSocket(`ws://localhost:8000/finding-match/5x5/ws?userid=${userId}`);
+            ws = new WebSocket(`ws://localhost:8000/finding-match/5x5/ws?userid=${userId}`);
 
             ws.onmessage = function(event) {
                 const data = JSON.parse(event.data);
-                if (data.action === 'matchFound') {
-                 matchId = Number(data.matchId)
-                 document.getElementById('matchmakingStatus').textContent = `Match with ID ${data.matchId} found. Please confirm your readiness.`;
-                 document.getElementById('confirmReady').style.display = 'block';
-                } else if (data.action === 'matchStarted') {
-                    document.getElementById('matchmakingStatus').textContent = 'Match is starting...';
+                switch (data.action) {
+                    case 'matchFound':
+                        matchId = Number(data.matchId);
+                        document.getElementById('matchmakingStatus').textContent = `Match with ID ${data.matchId} found. Please confirm your readiness.`;
+                        document.getElementById('confirmReady').style.display = 'block';
+                        document.getElementById('notConfirm').style.display = 'block';
+                        break;
+                    case 'matchCancelled':
+                        document.getElementById('matchmakingStatus').textContent = 'Match cancelled. Waiting for a new match...';
+                        hideConfirmationButtons();
+                        break;
+                    case 'matchResearch':
+                        document.getElementById('matchmakingStatus').textContent = 'Searching for a new match...';
+                        break;
+                    case 'matchStarted':
+                        document.getElementById('matchmakingStatus').textContent = 'Match is starting...';
+                        break;
+                    default:
+                        console.log('Unknown action:', data.action);
                 }
             };
 
@@ -58,6 +71,11 @@
             }
         }
 
+    function hideConfirmationButtons() {
+        document.getElementById('confirmReady').style.display = 'none';
+        document.getElementById('notConfirm').style.display = 'none';
+    }
+
     function confirmReady() {
         console.log(matchId);
         const userId = document.getElementById('userData').getAttribute('data-user-id');
@@ -71,8 +89,25 @@
                     }
                 });
         }
-        document.getElementById('confirmReady').style.display = 'none';
+        hideConfirmationButtons();
     }
+
+    function notConfirmReady() {
+        const userId = document.getElementById('userData').getAttribute('data-user-id');
+        const teamId = document.getElementById('teamId').value;
+        if (matchId && userId && teamId) {
+            fetch(`/finding-match/5x5/not_ready/${matchId}/${teamId}`, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    if (data.status === 'search restarted for opposing team') {
+                        document.getElementById('matchmakingStatus').textContent = 'Match declined.';
+                    }
+                });
+        }
+        hideConfirmationButtons()
+    }
+
     </script>
 </head>
 <body>
@@ -87,5 +122,7 @@
     <button onclick="startMatchmaking()">Start Matchmaking</button>
     <div id="matchmakingStatus">Waiting to start matchmaking...</div>
     <button id="confirmReady" style="display:none;" onclick="confirmReady()">Confirm Ready</button>
+    <button id="notConfirm" style="display:none;" onclick="notConfirmReady()">Not Confirm</button>
+
 </body>
 </html>

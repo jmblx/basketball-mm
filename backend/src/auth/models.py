@@ -58,7 +58,7 @@ class User(SQLAlchemyBaseUserTableUUID, Matchmaking, Base):
     )
     pathfile: Mapped[str] = mapped_column(nullable=True)
     searching: Mapped[bool] = mapped_column(default=False)
-    solo_rating: Mapped[int] = mapped_column(default=2500)
+    solo_rating: Mapped[int] = mapped_column(default=2501)
     solomatches = relationship(
         "SoloMatch",
         back_populates="players",
