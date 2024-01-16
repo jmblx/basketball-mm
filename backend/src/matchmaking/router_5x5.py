@@ -210,8 +210,6 @@ async def not_ready(
     return {"status": "search restarted for opposing team"}
 
 
-
-
 @router.get("/")
 def get_chat_page(request: Request):
     return templates.TemplateResponse("5x5.html", {"request": request})

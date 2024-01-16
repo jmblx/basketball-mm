@@ -29,10 +29,11 @@ class ConnectionManager:
         self.match_candidates: dict[UUID, UUID] = {}
 
     async def connect(self, websocket: WebSocket, user_id: UUID):
+        print("1")
         await websocket.accept()
+        print("2")
         self.active_connections[user_id] = websocket
         self.ready_players[user_id] = False
-
 
     async def disconnect(self, user_id: UUID):
         if user_id in self.active_connections:
@@ -103,8 +104,9 @@ def get_chat_page(request: Request):
     return templates.TemplateResponse("matchmaking.html", {"request": request})
 
 
-@router.websocket("solo/ws/{player_id}")
+@router.websocket("/solo/ws/{player_id}")
 async def websocket_endpoint(websocket: WebSocket, player_id: UUID):
+    print("sda")
     await manager.connect(websocket, player_id)
     try:
         async with async_session_maker() as session:

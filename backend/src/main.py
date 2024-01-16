@@ -16,6 +16,7 @@ from auth.base_config import (
 from auth.schemas import UserCreate, UserRead, UserUpdate
 # from config import SENTRY_URL, SECRET_AUTH
 from auth.custom_auth_router import router as custom_auth_router
+from config import REDIS_HOST, REDIS_PORT
 from database import async_session_maker
 from matchmaking.router import router as matchmaking_router
 from matchmaking.router_5x5 import router as matchmaking_5x5_router
@@ -96,5 +97,5 @@ app.add_route("/metrics", handle_metrics)
 
 @app.on_event("startup")
 async def startup_event():
-    redis = aioredis.from_url("redis://localhost", encoding="utf8", decode_responses=True)
+    redis = aioredis.from_url(f"redis://{REDIS_HOST}:{REDIS_PORT}", encoding="utf8", decode_responses=True)
     FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
