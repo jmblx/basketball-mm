@@ -21,6 +21,7 @@ from database import async_session_maker
 from matchmaking.router import router as matchmaking_router
 from matchmaking.router_5x5 import router as matchmaking_5x5_router
 from matchmaking.router_5x5_add import router as matchmaking_5x5_router_add
+from pages.router import router as pages_router
 from report.router import router as report_router
 from social.router import router as social_router
 from solomatch.router import router as solomatch_router
@@ -72,6 +73,7 @@ app.include_router(user_data_router)
 app.include_router(matchmaking_router)
 app.include_router(matchmaking_5x5_router)
 app.include_router(matchmaking_5x5_router_add)
+app.include_router(pages_router)
 app.include_router(solomatch_router)
 app.include_router(stats_router)
 app.include_router(report_router)

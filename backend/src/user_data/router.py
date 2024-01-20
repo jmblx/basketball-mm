@@ -50,7 +50,6 @@ async def upload_user_avatar(
     return res
 
 
-
 @router.get("/image/{user_id}")
 async def get_image(
     user_id: UUID,
