@@ -1,0 +1,41 @@
+body{
+    display: grid;
+}
+.conteiner{
+    width: 50%;
+    height: 100%;
+    background-color: rgb(226, 220, 220);
+    display: grid;
+
+    margin-left: 25%;
+    margin-top: 25px;
+    margin-top: 100px;
+    border-radius: 20px;
+    border-color: aqua;
+}
+.image{
+    border-radius: 50%;
+    width: 200px;
+    height: 200px;
+}
+.img{
+    display: flex;
+}
+.username{
+    margin-left: 20px;
+    margin-top: 25%;
+    font-size: large;
+    font-size: 30px;
+}
+.user{
+    padding-left: 20px;
+}
+.comand{
+    width: 50%;
+    height: 100%;
+}
+.comand-img{
+    border-radius: 40px;
+    height: 200px;
+    width: 400px;
+}

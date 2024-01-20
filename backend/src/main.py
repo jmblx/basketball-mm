@@ -11,12 +11,12 @@ from starlette_exporter import PrometheusMiddleware
 
 from auth.base_config import (
     auth_backend,
-    fastapi_users,
+    fastapi_users, google_oauth_client,
 )
 from auth.schemas import UserCreate, UserRead, UserUpdate
 # from config import SENTRY_URL, SECRET_AUTH
 from auth.custom_auth_router import router as custom_auth_router
-from config import REDIS_HOST, REDIS_PORT
+from config import REDIS_HOST, REDIS_PORT, SECRET_AUTH
 from database import async_session_maker
 from matchmaking.router import router as matchmaking_router
 from matchmaking.router_5x5 import router as matchmaking_5x5_router
@@ -24,6 +24,7 @@ from matchmaking.router_5x5_add import router as matchmaking_5x5_router_add
 from report.router import router as report_router
 from social.router import router as social_router
 from solomatch.router import router as solomatch_router
+from stats.router import router as stats_router
 from teams.router import router as teams_router
 from tournaments.router import router as tournaments_router
 from user_data.router import router as user_data_router
@@ -72,8 +73,30 @@ app.include_router(matchmaking_router)
 app.include_router(matchmaking_5x5_router)
 app.include_router(matchmaking_5x5_router_add)
 app.include_router(solomatch_router)
+app.include_router(stats_router)
 app.include_router(report_router)
 app.include_router(social_router)
+
+
+app.include_router(
+    fastapi_users.get_oauth_router(
+        google_oauth_client,
+        auth_backend,
+        SECRET_AUTH,
+        # redirect_url="http://127.0.0.1:8000/",
+        is_verified_by_default=True,
+    ),
+    prefix="/auth/google",
+    tags=["auth"],
+)
+app.include_router(
+    fastapi_users.get_oauth_associate_router(
+        google_oauth_client, UserRead, "SECRET"
+    ),
+    prefix="/auth/associate/google",
+    tags=["auth"],
+)
+
 
 # Регулировка обращений к API с других адресов
 origins = ["*"]

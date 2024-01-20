@@ -13,7 +13,7 @@ from auth.base_config import current_user
 from auth.models import User, Role, UserTeam, Team
 from auth.schemas import RoleSchema, TeamSchema
 from database import get_async_session
-from constants import images_dir
+from constants import IMAGES_DIR
 from tournaments.models import TeamTournament, Tournament, StatusEvent
 from utils import create_upload_avatar
 
@@ -27,7 +27,7 @@ async def upload_team_avatar(
     team_id: int,
 ):
     class_ = Team
-    team_avatar_dir = f"{images_dir}\\team"
+    team_avatar_dir = f"{IMAGES_DIR}\\team"
     res = await create_upload_avatar(team_id, file, class_, team_avatar_dir)
     return res
 

@@ -1,13 +1,18 @@
+import base64
+from uuid import UUID
+
 import fastapi
-from fastapi import Depends, UploadFile
+from fastapi import Depends, UploadFile, Request
+from fastapi.responses import FileResponse
 from sqlalchemy import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth.base_config import current_user
 from auth.models import User, Role
 from auth.schemas import RoleSchema
-from constants import images_dir
+from constants import IMAGES_DIR
 from database import get_async_session
+from matchmaking.router import templates
 from utils import create_upload_avatar
 
 router = fastapi.APIRouter(prefix="/profile", tags=["user-profile"])
@@ -24,19 +29,34 @@ async def get_user_data(
         "registered_at": user.registered_at,
         "id": user.id,
         "rating": user.solo_rating,
-        "details": None
+        "details": None,
     }
+
+
+@router.get("/img-page")
+def get_chat_page(request: Request):
+    return templates.TemplateResponse("img.html", {"request": request})
 
 
 @router.post("/uploadfile/user/avatar")
 async def upload_user_avatar(
     file: UploadFile,
-    user_id: int,
+    user_id: UUID,
 ):
     class_ = User
-    user_avatar_dir = f"{images_dir}\\user"
+    user_avatar_dir = f"{IMAGES_DIR}\\user"
     res = await create_upload_avatar(user_id, file, class_, user_avatar_dir)
     return res
+
+
+
+@router.get("/image/{user_id}")
+async def get_image(
+    user_id: UUID,
+    session: AsyncSession = Depends(get_async_session),
+):
+    user = await session.get(User, user_id)
+    return FileResponse(user.pathfile)
 
 
 @router.post("/add-role")

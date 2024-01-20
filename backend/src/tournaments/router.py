@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from starlette.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 
-from constants import images_dir
+from constants import IMAGES_DIR
 from database import get_async_session
 from tournaments.models import Tournament, Match, TeamMatch, StatusEvent
 from tournaments.schemas import TournamentSchema
@@ -24,7 +24,7 @@ async def upload_tournament_avatar(
     tournament_id: int,
 ):
     class_ = Tournament
-    tournament_avatar_dir = f"{images_dir}\\tournament"
+    tournament_avatar_dir = f"{IMAGES_DIR}\\tournament"
     res = await create_upload_avatar(tournament_id, file, class_, tournament_avatar_dir)
     return res
 

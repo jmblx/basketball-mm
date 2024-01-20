@@ -25,7 +25,7 @@ async def find_user(
         )
     )
     try:
-        result = (await session.execute(query)).fetchall()
+        result = (await session.execute(query)).unique().fetchall()
         return result[0][0].nickname
     except IndexError:
         return {"result": "not found"}

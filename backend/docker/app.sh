@@ -1,6 +1,10 @@
 #!/bin/bash
 
-sleep 10
+echo 'export TF_ENABLE_ONEDNN_OPTS=0' >> ~/.bashrc
+
+source ~/.bashrc
+
+sleep 5
 
 alembic upgrade head
 

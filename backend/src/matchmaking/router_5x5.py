@@ -48,7 +48,7 @@ async def websocket_endpoint(websocket: WebSocket, userid):
     try:
         while True:
             data = await websocket.receive_text()
-            # Обработка сообщений от клиентов...
+
     except WebSocketDisconnect:
         del connected_users[userid]
 

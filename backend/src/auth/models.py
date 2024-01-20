@@ -4,6 +4,7 @@ import uuid
 
 from fastapi_users.db import (
     SQLAlchemyBaseUserTableUUID,
+    SQLAlchemyBaseOAuthAccountTableUUID,
 )
 from sqlalchemy import String, JSON, ForeignKey, DDL, event
 from sqlalchemy.dialects.postgresql import TSVECTOR
@@ -31,16 +32,24 @@ class Matchmaking:
     # league: Mapped[League]
 
 
+class OAuthAccount(SQLAlchemyBaseOAuthAccountTableUUID, Base):
+    pass
+
+
 # модель пользователя для базы данных
 class User(SQLAlchemyBaseUserTableUUID, Matchmaking, Base):
     __tablename__ = "user"
 
-    nickname: Mapped[str]
-    role_id: Mapped[int] = mapped_column(ForeignKey("role.id"))
+    @staticmethod
+    def default_nickname(context):
+        return str(context.get_current_parameters()["email"].split("@")[0])
+
+    nickname: Mapped[str] = mapped_column(default=default_nickname)
+    role_id: Mapped[int] = mapped_column(ForeignKey("role.id"), default=1)
     roles: Mapped[list["Role"]] = relationship(
         back_populates="user", uselist=True
     )
-    email: Mapped[str] = mapped_column()
+    email: Mapped[str]
     is_email_confirmed: Mapped[bool] = mapped_column(default=False)
     email_confirmation_token = mapped_column(nullable=True, type_=String(50))
     registered_at: Mapped[added_at]
@@ -70,6 +79,9 @@ class User(SQLAlchemyBaseUserTableUUID, Matchmaking, Base):
     solomatch_winrate: Mapped[winrate]
     solomatch_played: Mapped[default_int]
     search_vector = mapped_column(TSVECTOR)
+    oauth_accounts: Mapped[List[OAuthAccount]] = relationship(
+        "OAuthAccount", lazy="joined"
+    )
 
 
 create_index = DDL("CREATE INDEX search_vector_index ON users USING GIN(search_vector);")

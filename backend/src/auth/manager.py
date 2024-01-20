@@ -87,6 +87,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
             else user_create.create_update_dict_superuser()
         )
         password = user_dict.pop("password")
+        user_dict["role_id"] = 1
         user_dict["hashed_password"] = self.password_helper.hash(password)
         user_dict["search_vector"] = func.to_tsvector('russian', user_dict["nickname"])
         created_user = await self.user_db.create(user_dict)

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Bascetplace</title>
+        <link rel="stylesheet" href=".\main.css">
+        <base target="_blank">
+    </head>
+    <body>
+        <footer>
+            <div class="menu">
+                <div class="object">
+                    <ui>
+                        <li>Главное меню</li>
+                        <li>Матчи</li>
+                        <li>Статистика</li>
+                        <li>Команды</li>
+                        <a href="new_page.html"><span style = "color: rgb(62, 0, 90)">Профиль</a>
+                    </ui>
+                </div>
+            </div>
+        </footer>
+        <div class="box">
+            <div>
+            <h1 class = "Bascetplace">BASKET PLACE</h1>
+            <p class = 'fish'><strong>Добро пожаловать в Bascet Place!<br>Здесь вы проводете время на улице</br>Получайте удовольствие !<br>ПИДОРАСЫ!</br></strong></p>
+            <button onclick="alert('Пидор?')" class="button">Войти</button>
+            </div>
+        </div>
+        <p class = "fish1"><strong>Игроки топ рейтинга</strong></p>
+    <header id="header" class="header">
+        <!-- Карточки будут добавлены здесь -->
+    </header>
+
+    <script>
+        async function getUserData() {
+            const response = await fetch('http://127.0.0.1:8000/stats/top5-users-solo');
+            const users = await response.json();
+            updateCardsWithUserData(users);
+        }
+
+        function updateCardsWithUserData(usersData) {
+            const userKeys = ['top1', 'top2', 'top3', 'top4', 'top5']; // Указываем порядок ключей
+        
+            userKeys.forEach(async (key) => {
+                const user = usersData[key];
+                if (user) {
+                    const userImageResponse = await fetch(`http://127.0.0.1:8000/profile/image/${user.id}`);
+                    const imgSrc = userImageResponse.url; // или другой способ получения URL изображения
+                    const userData = {
+                        imgSrc: imgSrc,
+                        title: user.nickname,
+                        rating: user.solo_rating,
+                        link: `http://localhost:8000/user/${user.nickname}`
+                    };
+                    header.appendChild(createCard(userData));
+                }
+            });
+        }
+
+        function createCard(data) {
+            const container = document.createElement('div');
+            container.className = 'container';
+            container.innerHTML = `
+                <div class="card">
+                    <img src="${data.imgSrc}" alt="Изображение игрока" class="image">
+                    <div class="card-title-nick">${data.title}</div>
+                    <div class="card-sub">РЕЙТИНГ:<br><span style="color: rgb(0, 47, 255)"><b>${data.rating}</b></span></br></div>
+                    <button onclick="document.location='${data.link}'" class="button2">Просмотр</button>
+                </div>
+            `;
+            return container;
+        }
+
+        document.addEventListener('DOMContentLoaded', getUserData);
+    </script>
+</body>
+</html>

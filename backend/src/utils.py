@@ -30,7 +30,7 @@ async def get_data(
 
 
 async def create_upload_avatar(
-    object_id: int,
+    object_id,
     file,
     class_,
     path: str,
@@ -43,7 +43,7 @@ async def create_upload_avatar(
             shutil.copyfileobj(file.file, new_file)
 
         with Image.open(save_path) as img:
-            img.thumbnail((350, 350))
+            img.thumbnail((300, 300))
             img.save(save_path)
 
         object.pathfile = save_path
