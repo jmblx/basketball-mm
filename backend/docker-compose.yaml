@@ -22,7 +22,8 @@ services:
     networks:
       - custom
   fastapi_app:
-    image: menoitami/basketball-mm
+    build:
+      context: .
     env_file:
       - .env-non-dev
     container_name: fastapi_app
