@@ -12,6 +12,7 @@ from starlette.status import HTTP_400_BAD_REQUEST, HTTP_200_OK
 from auth.base_config import current_user
 from auth.models import User, Role, UserTeam, Team
 from auth.schemas import RoleSchema, TeamSchema
+from config import PROJECT_DEBUG
 from database import get_async_session
 from constants import IMAGES_DIR
 from tournaments.models import TeamTournament, Tournament, StatusEvent
@@ -27,7 +28,8 @@ async def upload_team_avatar(
     team_id: int,
 ):
     class_ = Team
-    team_avatar_dir = f"{IMAGES_DIR}\\team"
+    team_avatar_dir = os.path.join(IMAGES_DIR, "team")
+
     res = await create_upload_avatar(team_id, file, class_, team_avatar_dir)
     return res
 

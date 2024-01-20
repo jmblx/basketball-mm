@@ -1,4 +1,5 @@
 import base64
+import os
 from uuid import UUID
 
 import fastapi
@@ -44,7 +45,7 @@ async def upload_user_avatar(
     user_id: UUID,
 ):
     class_ = User
-    user_avatar_dir = f"{IMAGES_DIR}\\user"
+    user_avatar_dir = os.path.join(IMAGES_DIR, "user")
     res = await create_upload_avatar(user_id, file, class_, user_avatar_dir)
     return res
 

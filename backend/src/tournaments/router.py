@@ -1,3 +1,5 @@
+import os
+
 import fastapi
 from PIL import Image
 from fastapi import Depends, Response, UploadFile
@@ -24,7 +26,7 @@ async def upload_tournament_avatar(
     tournament_id: int,
 ):
     class_ = Tournament
-    tournament_avatar_dir = f"{IMAGES_DIR}\\tournament"
+    tournament_avatar_dir = os.path.join(IMAGES_DIR, "tournament")
     res = await create_upload_avatar(tournament_id, file, class_, tournament_avatar_dir)
     return res
 
