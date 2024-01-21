@@ -1,0 +1,57 @@
+
+body{
+    background-color: black;
+}
+html { overflow-x:  hidden; }
+
+
+body {
+    overflow-y: scroll; /* Поддерживает прокрутку */
+}
+
+body::-webkit-scrollbar {
+    display: none; /* для Google Chrome
+}
+
+body {
+    -ms-overflow-style: none; /* для Edge */
+    scrollbar-width: none; /* для Firefox */
+}
+a {
+    text-decoration: none;
+    color: rgb(170, 169, 169);
+}
+
+.h1{
+    text-align: center;
+}
+.registrationForm{
+    width: 1980px;
+    height: 1080px;
+    display: grid;
+    text-align: center;
+    justify-items: center;
+}
+.input{
+    border-radius: 10px;
+    width: 90%;
+    height: 40px;
+}
+.con{
+    display: grid;
+    width: 400px;
+    height: 400px;
+    background-color: white;
+    border-radius: 5px;
+    border-color: bisque;
+}
+.nav{
+    color: rgb(0, 0, 0);
+    width: 100%;
+    height: 100%;
+}
+.text{
+    width: auto;
+    height: auto;
+    text-align: center;
+}

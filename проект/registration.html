@@ -4,16 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="register-logic.js"></script>
+    <link rel="stylesheet" href="registr.css">
     <title>Document</title>
 </head>
 <body>
-    <form id="registrationForm">
-        <input type="email" id="email" placeholder="Email" required>
-        <input type="text" id="nickname" placeholder="Nickname" required>
-        <input type="password" id="password" placeholder="Password" required>
-        <input type="file" id="avatar" accept="image/*">
-        <button type="submit">Register</button>
+<div class="text">
+    <h1 class="h1" style="font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;font-size: larger;color:orange;font-size: 40px;">ДОБРО ПОЖАЛОВАТЬ</h1>
+    <p><span style="font-size: 28px;color: aliceblue;">ЧТОБЫ ПОЛЬЗОВАТЬСЯ УСЛУГАМИ САЙТА</span></p>
+    <p><span style="font-size: 28px;color: aliceblue;"><b><i>ПРОЙДИТЕ АВТОРИЗАЦИЮ</i></b></span></p>
+</div>
+    <form class="registrationForm" id="registrationForm">
+        <div class="con">
+            <div class="nav">
+                <h2>Регистрация/<a href="index"><span style="color:rgb(175, 175, 175)");" ></span>Вход</span></a></h2>
+                <input class="input" type="email" id="email" placeholder="Email" required>
+                <input class="input" type="text" id="nickname" placeholder="Nickname" required>
+                <input class="input" type="password" id="password" placeholder="Password" required>
+            </div>
+            <input class="input" type="file" id="avatar" name="avatar" accept="image/*">
+            <button class="button" id="googleAuth">Войти с Google</button>
+            <button type="submit">Register</button>
+        </div>
     </form>
+    
     
 </body>
 </html>

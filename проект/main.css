@@ -19,6 +19,7 @@ body{
     background-color: black;
     padding: 0;
     margin: 0;
+    font-family: sans-serif;
 }
 a {
      text-decoration: none;
@@ -221,13 +222,14 @@ a {
     position: relative;
     text-align: center;
     top: 10px;
+    height: 100%;
+    width: 100vh;
 }
 #slider{
     margin: 0 auto;
-
 }
 /* Изобрадение друг к другу по left тоесть по right тоесть по правой стороне */
-#slider article{
+#slides article{
     width: 20%;
     float: left;
 }
@@ -252,9 +254,7 @@ article .images{
 #switch1:checked~#controls label:nth-child(5),
 #switch2:checked~#controls label:nth-child(4),
 #switch3:checked~#controls label:nth-child(3),
-#switch4:checked~#controls label:nth-child(2),
-#switch5:checked~#controls label:nth-child(1){
-   
+#switch4:checked~#controls label:nth-child(2){
     margin: 0 0 0 -84px;/*левый сдвиг ес чё*/
     display: block;
     height: 68px;
@@ -265,9 +265,7 @@ article .images{
 #switch1:checked~#controls label:nth-child(2),
 #switch2:checked~#controls label:nth-child(3),
 #switch3:checked~#controls label:nth-child(4),
-#switch4:checked~#controls label:nth-child(5),
-#switch5:checked~#controls label:nth-child(1){
-
+#switch4:checked~#controls label:nth-child(5){
     margin: 0px -84px 0px 0px;/*правый сдвиг ес чё уже*/
     display: block;
     height: 68px;
@@ -293,15 +291,13 @@ label,a{
 #switch4:checked ~ #slides .images{
     margin-left: -300%;
 }
-#switch5:checked ~ #slides .images{
-    margin-left: -400%;
-}
+
 
 /* полоджение блоков элементов */
 #controls{
     margin: -25% 0 0 0;
     width: 100%;
-    height: 500%;
+    height: 50px;
 }
 #active label{
     border-radius: 10px;
@@ -325,8 +321,7 @@ label,a{
 #switch1:checked ~ #active label:nth-child(1),
 #switch2:checked ~ #active label:nth-child(2),
 #switch3:checked ~ #active label:nth-child(3),
-#switch4:checked ~ #active label:nth-child(4),
-#switch5:checked ~ #active label:nth-child(5){
+#switch4:checked ~ #active label:nth-child(4){
     background: #ffffff;
     border-color: #00aaff !important;
 }
@@ -346,5 +341,40 @@ label,a{
 }
 .all{
     height: 100vh;
-    
 }
+
+
+
+
+/* АНИМЕ ТЕКСТА ДОБРО ПОЖАЛОВАТЬ */
+.textok {
+    opacity: 0;
+    transform: translateY(-100%);
+    animation: slideIn 2s ease forwards, slideOut 2s ease forwards 4s;
+  }
+  @keyframes slideIn {
+    0% {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+
+  /* АНИМЕ ДЛЯ СПИСКА */
+  .spisok-animation li {
+    opacity: 0;
+    animation: fadeIn 1s ease forwards;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  .animated-list li:nth-child(1) { animation-delay: 0.5s; }
+  .animated-list li:nth-child(2) { animation-delay: 1s; }
+  .animated-list li:nth-child(3) { animation-delay: 1.5s; }
