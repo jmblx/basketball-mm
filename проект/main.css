@@ -60,9 +60,10 @@ a {
     cursor: pointer;
     text-align: center;
     width: 200px;
-    border-radius: 2px;
+    border-radius: 10px;
     align-items:center ;
     transition: all 0.8s ease
+    
 }
 
 .button:hover {
@@ -214,3 +215,136 @@ a {
     animation: visibleAnimation 4s ease-in-out forvards;
 }
 
+/* ЖЕСТКАЯ ЕБЛЯЯЯЯЯЯ */
+/* ЕБАНЫЙ В РОТ, ДАЙ БОГ МНЕ ЗДОРОВЬЯ */
+#slider{
+    position: relative;
+    text-align: center;
+    top: 10px;
+}
+#slider{
+    margin: 0 auto;
+
+}
+/* Изобрадение друг к другу по left тоесть по right тоесть по правой стороне */
+#slider article{
+    width: 20%;
+    float: left;
+}
+#slides .images{
+    width: 500%;
+    line-height: 0;
+
+}
+#overflow{
+    width: 100%;
+    overflow: hidden;
+}
+article .images{
+    width: 100%;
+}
+/* ТУТ ТИПО РАЗМЕР ВЕГО СЛАЙДЕРА, МБ ПОМЕНЯЮ, НО И ТУТ РАБОТАЕТ ПОКА input ЧЕКАЕТСЯ. Я ЕБАЛ ЕСИ НЕ РАБОТАЕТ */
+#desctop:checked ~ #slides{
+    max-width: 960px;
+}
+/* ПЕРЕКЛЮЧАТЕЛИ (ЛЕВАЯ СТРЕЛКА)*/
+/* НУ ТУТ ВСЁ ЕБАТЬ ЯСНО */
+#switch1:checked~#controls label:nth-child(5),
+#switch2:checked~#controls label:nth-child(4),
+#switch3:checked~#controls label:nth-child(3),
+#switch4:checked~#controls label:nth-child(2),
+#switch5:checked~#controls label:nth-child(1){
+   
+    margin: 0 0 0 -84px;/*левый сдвиг ес чё*/
+    display: block;
+    height: 68px;
+    width: 68px;
+    
+}
+/* (ПРАВАЯ СТРЕЛКА) */
+#switch1:checked~#controls label:nth-child(2),
+#switch2:checked~#controls label:nth-child(3),
+#switch3:checked~#controls label:nth-child(4),
+#switch4:checked~#controls label:nth-child(5),
+#switch5:checked~#controls label:nth-child(1){
+
+    margin: 0px -84px 0px 0px;/*правый сдвиг ес чё уже*/
+    display: block;
+    height: 68px;
+    width: 68px;
+}
+/* Прикол пальцы лиона, хз зачем, да по приколу */
+label,a{
+    cursor: pointer;
+}
+.all input{
+    display: none;
+}
+/* :ЖЕСТКИЙ ФЛЕКС ПО КНОПКАМ И КАРТИНКАМ И ИХ ПЕРЕКЛЮЧЕНИЕМ(НЕ ЗРЯ УЧИЛ АНИМАЦИЮ С ПОЯВЛДЕНЕМ ТЕКСТА ЕБАТЬ, ЩАС НАВАЛЮ СТИЛЯ ЕБАНОГО, И ПУСТЬ ВСЕ ИДУТ НАХУИИИИИ) */
+#switch1:checked ~ #slides .images{
+    margin-left: 0;
+}
+#switch2:checked ~ #slides .images{
+    margin-left: -100%;
+}
+#switch3:checked ~ #slides .images{
+    margin-left: -200%;
+}
+#switch4:checked ~ #slides .images{
+    margin-left: -300%;
+}
+#switch5:checked ~ #slides .images{
+    margin-left: -400%;
+}
+
+/* полоджение блоков элементов */
+#controls{
+    margin: -25% 0 0 0;
+    width: 100%;
+    height: 500%;
+}
+#active label{
+    border-radius: 10px;
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    background: #ffffff;
+}
+/* блок с чеками(банковскими) */
+#active{
+    margin: 23% 0px 0px;
+    text-align: center;
+}
+/* ОБЫЧНЫЙ ХОВЕР */
+#active label:hover{
+    background: #ffffff;
+    border-color: #ffffff !important;
+    /* ну типо в любом случае */
+}
+/* В ЦВЕТ ЕБАТЬ ХАПХАХПХАПХВХВХПХП */
+#switch1:checked ~ #active label:nth-child(1),
+#switch2:checked ~ #active label:nth-child(2),
+#switch3:checked ~ #active label:nth-child(3),
+#switch4:checked ~ #active label:nth-child(4),
+#switch5:checked ~ #active label:nth-child(5){
+    background: #ffffff;
+    border-color: #00aaff !important;
+}
+
+/* АНИМАЦИЯ ПРОКРУТКИ ИЗОБРАЖЕНИЙ */
+/* МОЖНО ПОМЕНЯТЬ ВЗЯВ С САЙТА HTMLbook(ну короче если не понравится) */
+#slides .images{
+    /* transition: all 1s cubic-bazier(0.50,0.000,0.50,2.000); */
+    transition: all 1s ease-in-out;
+}
+#controls label:hover{
+    opacity: 0.6;
+
+}
+#controls label{
+    transition: opacity 0.2s ease-out ;
+}
+.all{
+    height: 100vh;
+    
+}

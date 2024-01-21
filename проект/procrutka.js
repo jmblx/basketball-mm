@@ -31,34 +31,14 @@ function createCard(data) {
             <img src="${data.imgSrc}" alt="Изображение игрока" class="image">
             <div class="card-title-nick">${data.title}</div>
             <div class="card-sub">РЕЙТИНГ:<br><span style="color: rgb(0, 47, 255)"><b>${data.rating}</b></span></br></div>
-            <button onclick="document.location='${data.link}'" class="button2">Просмотр</button>
+            <button onclick="document.location='${data.link}'" class="button">Просмотр</button>
         </div>
     `;
     return container;
 }
 
 document.addEventListener('DOMContentLoaded', getUserData);
-// document.addEventListener('wheel', function(event) {
-//     event.preventDefault(); // Предотвращение стандартной прокрутки
 
-//     var currentSection = document.elementFromPoint(window.innerWidth / 2, window.innerHeight / 2);
-//     var nextSection;
-
-//     if (event.deltaY > 0) {
-//         // Прокрутка вниз
-//         nextSection = currentSection.nextElementSibling;
-//     } else {
-//         // Прокрутка вверх
-//         nextSection = currentSection.previousElementSibling;
-//     }
-
-//     if (nextSection && nextSection.classList.contains('scroll-section')) {
-//         window.scrollTo({
-//             top: nextSection.offsetTop,
-//             behavior: 'smooth'
-//         });
-//     }
-// });
 
 window.onscroll = function() {scrollFunction()};
 

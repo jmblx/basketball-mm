@@ -16,25 +16,41 @@
     <button id="confirmReady" style="display:none;" onclick="confirmReady()">Confirm Ready</button>
 
     <script>
-        let websocket;
 
-        async function getUserData() {
-            const token = document.getElementById('tokenInput').value;
-            const response = await fetch('/profile/', {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
+let websocket;
+async function getUserData() {
+    const token = localStorage.getItem('userToken');
+    if (!token) {
+        alert('No token found. Please login or register.');
+        return;
+    }
 
-            if (response.ok) {
-                const data = await response.json();
-                document.getElementById('userData').textContent = JSON.stringify(data, null, 2);
-                document.getElementById('userData').setAttribute('data-user-id', data.id);
-            } else {
-                document.getElementById('userData').textContent = 'Failed to fetch user data.';
-            }
+    const response = await fetch('/profile/', {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`
         }
+    });
+
+
+
+        // async function getUserData() {
+        //     const token = document.getElementById('tokenInput').value;
+        //     const response = await fetch('/profile/', {
+        //         method: 'GET',
+        //         headers: {
+        //             'Authorization': `Bearer ${token}`
+        //         }
+        //     });
+
+        //     if (response.ok) {
+        //         const data = await response.json();
+        //         document.getElementById('userData').textContent = JSON.stringify(data, null, 2);
+        //         document.getElementById('userData').setAttribute('data-user-id', data.id);
+        //     } else {
+        //         document.getElementById('userData').textContent = 'Failed to fetch user data.';
+        //     }
+        // }
 
         async function startMatchmaking() {
             const userId = document.getElementById('userData').getAttribute('data-user-id');
