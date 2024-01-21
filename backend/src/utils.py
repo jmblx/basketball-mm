@@ -43,8 +43,8 @@ async def create_upload_avatar(
             shutil.copyfileobj(file.file, new_file)
 
         with Image.open(save_path) as img:
-            img.thumbnail((300, 300))
-            img.save(save_path)
+            new_img = img.resize((300, 300))
+            new_img.save(save_path)
 
         object.pathfile = save_path
         await session.commit()

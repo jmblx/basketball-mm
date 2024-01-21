@@ -24,8 +24,8 @@ async def find_user(
             func.similarity(User.nickname, nickname_converted) > 0.3
         )
     )
-    try:
-        result = (await session.execute(query)).unique().fetchall()
-        return result[0][0].nickname
-    except IndexError:
-        return {"result": "not found"}
+    result = (await session.execute(query)).unique().fetchall()
+    nicknames = [user[0].nickname for user in result]
+    print(nicknames)
+    return nicknames if nicknames else {"result": "not found"}
+

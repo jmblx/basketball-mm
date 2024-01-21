@@ -1,31 +1,202 @@
 <!DOCTYPE html>
-<html lang="ru">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Bascetplace</title>
-        <link rel="stylesheet" href="main.css">
-        <base target="_blank">
-        <style>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bascetplace</title>
+    <link rel="stylesheet" href=".\main.css">
+    <script src="procrutka.js"></script>
+    <base target="_blank">
+</head>
+<body>
+
+    <footer class="footer">
+        <div class="menu">
+            <div class="object">
+                <ui>
+                    <li class="text"><a href="Match_page.html"><span style="color: white;font-weight: bold;font-size: 25px;">Матчи</span></a></li>
+                    <li class="text"><a href="Static_page.html"><span style="color: white;font-weight: bold;font-size: 25px;">Статистика</span></a></li>
+                    <li class="text"><a href="Comands_page.html"><span style="color: white;font-weight: bold;font-size: 25px;">Команды</span></a></li>
+                    <li class="text"><a href="new_page.html"><span style="color: white;font-weight: bold;font-size: 25px;">Профиль</span></a></li>
+                    <li><div class="search-container">
+                            <input type="text" id="search-input" placeholder="Поиск пользователя...">
+                            <button onclick="performSearch()" id="search-button" class="search-button"><img src=".\фото\blupa.png" alt="Search" class="search-icon"></button>
+                        </div>
+
+                        <div id="search-results"></div>
+                    </li>
+                </ui>
+            </div>
+        </div>
+    </footer>
+
+<div class="main" id="блок1">   
+    <div class="box">
+        <div>
+        <h1><span style="color: orange;font-size: 100px;">BASKET PLACE</span></h1>
+        <p><span style="color: white;font-size: large;"><strong>Добро пожаловать в Bascet Place!<br>Здесь вы проводете время на улице нахуй идите все ебаные уёбки</br>Получайте анальное удовольствие гады и шлюхи!<br>ПИДОРАСЫ!</br></strong></span></p>
+        <button onclick="alert('Пидор?')" class="button">Войти</button>
+        </div>
+    </div>
+</div>
+
+<div class="main" id="блок2">
+    <div class="header-top">
+        <p><span style="color: white;font-size: 50px;"><strong>Игроки топ рейтинга</strong></span></p>
+    </div>
+</div>
+
+<!-- ТУТ БУДУТ РАСПОЛОГАТСЯ КАРТИЧКИ ТОП-5 ПОЛЬЗОВАТЕЛЕЙ ЧЕРЕЗ ШАБЛОНИЗАТОР -->
+<header id = "header" class = "header">
+    
+</header>
+<!-- КОНЕЦ -->
+<div class="modal-content">
+    <span class="close">&times;</span>
+    <h2>Поиск</h2>
+    <input type="text" id="modal-search-input" placeholder="Поиск пользователя...">
+    <h3>Поиск пользователей по нику</h3>
+    <div id="user-search-results">Пользователи не найдены</div>
+    <h3>Поиск команд</h3>
+    <div id="team-search-results">Команды не найдены</div>
+</div>
+
+
+
+</body>
+<script>
+document.getElementById('modal-search-input').addEventListener('input', () => {
+    const searchText = document.getElementById('modal-search-input').value;
+    if (searchText.length > 0) {
+        performSearch();
+    } else {
+        document.getElementById('user-search-results').innerHTML = 'Пользователи не найдены';
+    }
+});
+
+async function performSearch() {
+    const searchText = document.getElementById('modal-search-input').value;
+    const response = await fetch(`http://127.0.0.1:8000/social/find-user?nickname=${searchText}`);
+    const result = await response.json();
+
+    displayUserResults(result);
+}
+
+function displayUserResults(nicknames) {
+    const userResultsDiv = document.getElementById('user-search-results');
+    if (Array.isArray(nicknames) && nicknames.length > 0) {
+        userResultsDiv.innerHTML = nicknames.map(nickname =>
+            `<a href="http://localhost:8000/user/${nickname}">${nickname}</a>`
+        ).join('<br>');
+    } else {
+        userResultsDiv.innerHTML = 'Пользователь не найден';
+    }
+}
+
+</script>
+<script>
+    async function getUserData() {
+    const response = await fetch('http://127.0.0.1:8000/stats/top5-users-solo');
+    const users = await response.json();
+    updateCardsWithUserData(users);
+}
+
+async function getUserData() {
+    const response = await fetch('http://127.0.0.1:8000/stats/top5-users-solo');
+    const users = await response.json();
+
+    // Сортируем пользователей так, чтобы топ 1 был посередине
+    const sortedUsers = [users.top5, users.top3, users.top1, users.top2, users.top4];
+
+    sortedUsers.forEach(async (user, index) => {
+        if (user) {
+            const userImageResponse = await fetch(`http://127.0.0.1:8000/profile/image/${user.id}`);
+            const imgSrc = userImageResponse.url;
+            const userData = {
+                top: index === 2 ? 'top1' : '', // Указываем, что это топ 1
+                imgSrc: imgSrc,
+                title: user.nickname,
+                rating: user.solo_rating,
+                link: `http://localhost:8000/user/${user.nickname}`,
+            };
+            header.appendChild(createCard(userData));
+        }
+    });
+}
+
+
+function createCard(data) {
+    const container = document.createElement('div');
+    container.className = 'container';
+
+    let cardClass = 'card';
+    if (data.top === 'top1') {
+        cardClass += ' card-top1'; // Добавляем класс для топ 1 игрока
+    }
+
+    container.innerHTML = `
+        <div class="${cardClass}">
+            <img src="${data.imgSrc}" alt="Изображение игрока" class="image">
+            <div class="card-title-nick">${data.title}</div>
+            <div class="card-sub">РЕЙТИНГ:<br><span style="color: rgb(0, 47, 255)"><b>${data.rating}</b></span></br></div>
+            <button onclick="document.location='${data.link}'" class="button2">Просмотр</button>
+        </div>
+    `;
+    return container;
+}
+
+
+document.addEventListener('DOMContentLoaded', getUserData);
+
+
+</script>
+<style>
 html { overflow-x:  hidden; }
 
 
+body {
+    overflow-y: scroll; /* Поддерживает прокрутку */
+}
+
+body::-webkit-scrollbar {
+    display: none; /* для Google Chrome
+}
+
+body {
+    -ms-overflow-style: none; /* для Edge */
+    scrollbar-width: none; /* для Firefox */
+}
+
 body{
     background-color: black;
-     padding: 0;
+    padding: 0;
     margin: 0;
 }
-.Bascetplace{
-    color: bisque;
-    text-align: center;
-    font-size: 100px;
+a {
+     text-decoration: none;
 }
+
+
+
+/* ТУТ НЕРЕАЛЬНОГО ФОРМАТА СКРОЛЛ */
+
+#блок2 {
+
+    height: 100%;
+
+}
+
+/*  */
+
+
+
 .box{
     text-align: center;
     align-items: center;
-    width: 1920px;
-    height: 1080px;
+    width: 100%;
+    height: 100%;
     display: grid;
+    min-height: 100vh;
 
 }
 .button {
@@ -43,6 +214,14 @@ body{
     width: 200px;
     border-radius: 2px;
     align-items:center ;
+    transition: all 0.8s ease
+}
+
+.button:hover {
+    background: rgba(0,0,0,0);
+    color: #3a7999;
+    box-shadow: inset 0 0 0 3px #3a7999;
+    border-radius: 10px;
 }
 .button2{
     background-color: #000000; /* White */
@@ -59,10 +238,13 @@ body{
     width: 150px;
     border-radius: 2px;
 }
-.fish{
-    font-size: large;
-    color: #ffffff;
+.button2:hover{
+    background: rgba(0,0,0,0);
+    color: #3a7999;
+    box-shadow: inset 0 0 0 3px #3a7999;
+    border-radius: 10px;
 }
+
 
 .image{
     border-radius: 10px;
@@ -84,12 +266,17 @@ body{
     color: rgb(255, 255, 255);
 }
 .container{
-    align-items: center;
-    display:grid;
-    align-content: center;
+    display: grid;
     text-align: center;
+    justify-content: space-around;
+    align-items: center;
 }
-
+.card-container{
+    display: grid;
+    text-align: center;
+    justify-content: space-around;
+    align-items: center;
+}
 .header{
     width: 1920px;
     display: flex;
@@ -97,21 +284,23 @@ body{
     align-items: center;
     align-content: center;
     justify-content: space-between;
+    min-height: 100vh;
 }
-.fish1{
-    color: white;
-    font-size: 50px;
-    text-align: center;
-}
-.object{
+
+/* .object{
     width: 100%;
     height: 50px;
     color: aliceblue;
     align-items: center;
     display: grid;
 
+} */
+.object {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
-.object ui{
+/* .object ui{
     height: inherit;
     width: inherit;
     display: flex;
@@ -119,79 +308,126 @@ body{
     list-style-type: none;
     text-align: center;
     align-items: center;
+} */
+.object ul {
+    list-style-type: none;
+    display: flex;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+    width: 100%;
 }
-.object li{
-    margin-right: 20px;
+/* .object li{
+    margin-right: 50px;
+} */
+.object li {
+    margin-right: 50px;
 }
+.object li:last-child {
+    margin-right: 0;
+    margin-left: auto;
+}
+.footer{
+    width: 100%;
+
+}
+.header-top {
+    width: 100%;
+    text-align: center;
+    animation: visibleAnimation  4s ease;
+}
+.object ui {
+    justify-content: center;
+    display: flex;
+    padding: 35px;
+    list-style-type: none;
+    text-align: center;
+    align-items: center;
+}
+
+
+
+/* АНИМАЦИЯ КАК ФУНКЦИЯ ДЛЯ ЭЛЕМЕНТОВ ЛОЛ */
+@keyframes visibleAnimation {
+    0% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(1.1);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+.header-top{
+    animation: visibleAnimation 4s ease-in-out forvards;
+}
+
+.search-icon {
+    width: 20px; /* или любой другой размер, который вам подходит */
+    height: 20px; /* поддерживайте одинаковую ширину и высоту для сохранения пропорций */
+}
+
+@media (max-width: 600px) {
+    .search-icon {
+        width: 10%;
+    }
+}
+
+.search-button {
+    background: none; /* Убирает фон */
+    border: none;    /* Убирает рамку */
+    cursor: pointer; /* Опционально, делает курсор в виде руки при наведении */
+}
+
+.card-top1 {
+    width: 350px; /* Больший размер для выделения */
+    animation: visibleAnimation 4s ease; /* Анимация */
+    z-index: 2; /* Убедитесь, что карточка находится над другими элементами */
+    margin: 10px; /* Добавляем отступ для лучшего выделения */
+}
+.modal {
+    display: none; /* Скрыто по умолчанию */
+    position: fixed; /* Остается на месте при прокрутке */
+    z-index: 1; /* Находится над другими элементами */
+    left: 0;
+    top: 0;
+    width: 100%; /* Полная ширина */
+    height: 100%; /* Полная высота */
+    overflow: auto; /* Прокрутка если необходимо */
+    background-color: rgb(0,0,0); /* Фон */
+    background-color: rgba(0,0,0,0.4); /* Немного прозрачности */
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% от верха и центрировано */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Может быть изменено в зависимости от размера экрана */
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+
 </style>
-    </head>
-    <body>
-        <footer>
-            <div class="menu">
-                <div class="object">
-                    <ui>
-                        <li>Главное меню</li>
-                        <li>Матчи</li>
-                        <li>Статистика</li>
-                        <li>Команды</li>
-                        <a href="new_page.html"><span style = "color: rgb(62, 0, 90)">Профиль</a>
-                    </ui>
-                </div>
-            </div>
-        </footer>
-        <div class="box">
-            <div>
-            <h1 class = "Bascetplace">BASKET PLACE</h1>
-            <p class = 'fish'><strong>Добро пожаловать в Bascet Place!<br>Здесь вы проводете время на улице</br>Получайте удовольствие !<br>ПИДОРАСЫ!</br></strong></p>
-            <button onclick="alert('Пидор?')" class="button">Войти</button>
-            </div>
-        </div>
-        <p class = "fish1"><strong>Игроки топ рейтинга</strong></p>
-    <header id="header" class="header">
-        <!-- Карточки будут добавлены здесь -->
-    </header>
-
-    <script>
-        async function getUserData() {
-            const response = await fetch('http://127.0.0.1:8000/stats/top5-users-solo');
-            const users = await response.json();
-            updateCardsWithUserData(users);
-        }
-
-        function updateCardsWithUserData(usersData) {
-            const userKeys = ['top1', 'top2', 'top3', 'top4', 'top5']; // Указываем порядок ключей
-        
-            userKeys.forEach(async (key) => {
-                const user = usersData[key];
-                if (user) {
-                    const userImageResponse = await fetch(`http://127.0.0.1:8000/profile/image/${user.id}`);
-                    const imgSrc = userImageResponse.url; // или другой способ получения URL изображения
-                    const userData = {
-                        imgSrc: imgSrc,
-                        title: user.nickname,
-                        rating: user.solo_rating,
-                        link: `http://localhost:8000/user/${user.nickname}`
-                    };
-                    header.appendChild(createCard(userData));
-                }
-            });
-        }
-
-        function createCard(data) {
-            const container = document.createElement('div');
-            container.className = 'container';
-            container.innerHTML = `
-                <div class="card">
-                    <img src="${data.imgSrc}" alt="Изображение игрока" class="image">
-                    <div class="card-title-nick">${data.title}</div>
-                    <div class="card-sub">РЕЙТИНГ:<br><span style="color: rgb(0, 47, 255)"><b>${data.rating}</b></span></br></div>
-                    <button onclick="document.location='${data.link}'" class="button2">Просмотр</button>
-                </div>
-            `;
-            return container;
-        }
-
-        document.addEventListener('DOMContentLoaded', getUserData);
-    </script>
-</body>
+<a href="https://www.flaticon.com/ru/free-icons/-" title="увеличительное стекло иконки">Увеличительное стекло иконки от Freepik - Flaticon</a>
 </html>
+
+
+

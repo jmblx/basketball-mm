@@ -29,24 +29,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     async def on_after_register(
         self, user: User, request: Optional[Request] = None
     ):
-        async with async_session_maker() as session:
-            token = secrets.token_urlsafe(32)
-            user.email_confirmation_token = token
-        email = EmailMessage()
-        email['Subject'] = 'Подтвердите регистрацию'
-        email['From'] = SMTP_USER
-        email['To'] = user.email
-        email_content = f"""
-            Здравствуйте! Если вы зарегестрировались на сайте basketball-mm,
-            используя эту почту, то перейдите по следующей ссылке: localhost:8000/custom/email-confirmation/{token}/
-        """
-        email.set_content(
-            email_content,
-            subtype='html'
-        )
-        with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT) as server:
-            server.login(SMTP_USER, SMTP_PASSWORD)
-            server.send_message(email)
+        pass
 
     async def on_after_forgot_password(
         self, user: User, token: str, request: Optional[Request] = None
@@ -87,6 +70,25 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
             else user_create.create_update_dict_superuser()
         )
         password = user_dict.pop("password")
+#        async with async_session_maker() as session:
+        token = secrets.token_urlsafe(32)
+        user_dict["email_confirmation_token"] = token
+#            await session.add(user)
+        email = EmailMessage()
+        email['Subject'] = 'Подтвердите регистрацию'
+        email['From'] = SMTP_USER
+        email['To'] = user_dict.get("email")
+        email_content = f"""
+                   Здравствуйте! Если вы зарегестрировались на сайте basketball-mm,
+                   используя эту почту, то перейдите по следующей ссылке: localhost:8000/custom/email-confirmation/{token}
+               """
+        email.set_content(
+            email_content,
+            subtype='html'
+        )
+        with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT) as server:
+            server.login(SMTP_USER, SMTP_PASSWORD)
+            server.send_message(email)
         user_dict["role_id"] = 1
         user_dict["hashed_password"] = self.password_helper.hash(password)
         user_dict["search_vector"] = func.to_tsvector('russian', user_dict["nickname"])
