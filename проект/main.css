@@ -2,22 +2,49 @@
 html { overflow-x:  hidden; }
 
 
+body {
+    overflow-y: scroll; /* Поддерживает прокрутку */
+}
+
+body::-webkit-scrollbar {
+    display: none; /* для Google Chrome
+}
+
+body {
+    -ms-overflow-style: none; /* для Edge */
+    scrollbar-width: none; /* для Firefox */
+}
+
 body{
     background-color: black;
-     padding: 0;
+    padding: 0;
     margin: 0;
 }
-.Bascetplace{
-    color: bisque;
-    text-align: center;
-    font-size: 100px;
+a {
+     text-decoration: none;
 }
+
+
+
+/* ТУТ НЕРЕАЛЬНОГО ФОРМАТА СКРОЛЛ */
+
+#блок2 {
+
+    height: 100%;
+    
+}
+
+/*  */
+
+
+
 .box{
     text-align: center;
     align-items: center;
-    width: 1920px;
-    height: 1080px;
+    width: 100%;
+    height: 100%;
     display: grid;
+    min-height: 100vh;
     
 }
 .button {
@@ -35,6 +62,14 @@ body{
     width: 200px;
     border-radius: 2px;
     align-items:center ;
+    transition: all 0.8s ease
+}
+
+.button:hover {
+    background: rgba(0,0,0,0);
+    color: #3a7999;
+    box-shadow: inset 0 0 0 3px #3a7999;
+    border-radius: 10px;
 }
 .button2{
     background-color: #000000; /* White */
@@ -51,10 +86,13 @@ body{
     width: 150px;
     border-radius: 2px;
 }
-.fish{
-    font-size: large;
-    color: #ffffff;
+.button2:hover{
+    background: rgba(0,0,0,0);
+    color: #3a7999;
+    box-shadow: inset 0 0 0 3px #3a7999;
+    border-radius: 10px;
 }
+
 
 .image{
     border-radius: 10px;
@@ -76,12 +114,17 @@ body{
     color: rgb(255, 255, 255);
 }
 .container{
-    align-items: center;
-    display:grid;
-    align-content: center;
+    display: grid;
     text-align: center;
+    justify-content: space-around;
+    align-items: center;
 }
-
+.card-container{
+    display: grid;
+    text-align: center;
+    justify-content: space-around;
+    align-items: center;
+}
 .header{
     width: 1920px;
     display: flex;
@@ -89,21 +132,23 @@ body{
     align-items: center;
     align-content: center;
     justify-content: space-between;
+    min-height: 100vh;
 }
-.fish1{
-    color: white;
-    font-size: 50px;
-    text-align: center;
-}
-.object{
+
+/* .object{
     width: 100%;
     height: 50px;
     color: aliceblue;
     align-items: center;
     display: grid;
 
+} */
+.object {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
-.object ui{
+/* .object ui{
     height: inherit;
     width: inherit;
     display: flex;
@@ -111,7 +156,61 @@ body{
     list-style-type: none;
     text-align: center;
     align-items: center;  
+} */
+.object ul {
+    list-style-type: none;
+    display: flex;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+    width: 100%;
 }
-.object li{
-    margin-right: 20px;
+/* .object li{
+    margin-right: 50px;
+} */
+.object li {
+    margin-right: 50px;
 }
+.object li:last-child {
+    margin-right: 0;
+    margin-left: auto;
+}
+.footer{
+    width: 100%;
+
+}
+.header-top {
+    width: 100%;
+    text-align: center;
+    animation: visibleAnimation  4s ease;
+}
+.object ui {
+    justify-content: center;
+    display: flex;
+    padding: 35px;
+    list-style-type: none;
+    text-align: center;
+    align-items: center;  
+}
+
+
+
+/* АНИМАЦИЯ КАК ФУНКЦИЯ ДЛЯ ЭЛЕМЕНТОВ ЛОЛ */
+@keyframes visibleAnimation {
+    0% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(1.1);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+.header-top{
+    animation: visibleAnimation 4s ease-in-out forvards;
+}
+
