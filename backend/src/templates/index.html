@@ -19,12 +19,10 @@
                     <li class="text"><a href="Comands_page.html"><span style="color: white;font-weight: bold;font-size: 25px;">Команды</span></a></li>
                     <li class="text"><a href="new_page.html"><span style="color: white;font-weight: bold;font-size: 25px;">Профиль</span></a></li>
                     <li><div class="search-container">
-                            <input type="text" id="search-input" placeholder="Поиск пользователя...">
-                            <button onclick="performSearch()" id="search-button" class="search-button"><img src=".\фото\blupa.png" alt="Search" class="search-icon"></button>
-                        </div>
-
-                        <div id="search-results"></div>
+                        <img src=".\фото\blupa.png" id="openModalButton" class="search-icon">
+                    </div>
                     </li>
+
                 </ui>
             </div>
         </div>
@@ -51,17 +49,17 @@
     
 </header>
 <!-- КОНЕЦ -->
-<div class="modal-content">
-    <span class="close">&times;</span>
-    <h2>Поиск</h2>
-    <input type="text" id="modal-search-input" placeholder="Поиск пользователя...">
-    <h3>Поиск пользователей по нику</h3>
-    <div id="user-search-results">Пользователи не найдены</div>
-    <h3>Поиск команд</h3>
-    <div id="team-search-results">Команды не найдены</div>
+<div class="modal" id="myModal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Поиск</h2>
+        <input type="text" id="modal-search-input" placeholder="Поиск пользователя...">
+        <h3>Поиск пользователей по нику</h3>
+        <div id="user-search-results">Пользователи не найдены</div>
+        <h3>Поиск команд</h3>
+        <div id="team-search-results">Команды не найдены</div>
+    </div>
 </div>
-
-
 
 </body>
 <script>
@@ -147,6 +145,30 @@ function createCard(data) {
 
 
 document.addEventListener('DOMContentLoaded', getUserData);
+
+// Получаем модальное окно и кнопку, которая его открывает
+var modal = document.getElementById("myModal");
+var btn = document.getElementById("openModalButton");
+
+// Получаем элемент <span>, который закрывает модальное окно
+var span = document.getElementsByClassName("close")[0];
+
+// При клике на кнопку открываем модальное окно
+btn.onclick = function() {
+    modal.style.display = "block";
+}
+
+// При клике на <span> (x), закрываем модальное окно
+span.onclick = function() {
+    modal.style.display = "none";
+}
+
+// При клике вне модального окна, оно закрывается
+window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
 
 
 </script>
