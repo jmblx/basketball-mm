@@ -3,84 +3,91 @@
 <head>
     <title>5x5 Matchmaking System</title>
     <script>
-        var ws;
-        var matchId;
+    var ws;
+    var matchId;
+    let is_captain_search
 
-        async function getUserData() {
-            const token = document.getElementById('tokenInput').value;
-            const response = await fetch('/profile/', {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+    var userData;
+
+    async function getUserData() {
+        const token = localStorage.getItem("auth_token");
+        const response = await fetch('/profile/', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (response.ok) {
+            userData = await response.json();
+            // Теперь userData содержит данные пользователя
+            // Запускаем WebSocket, используя ID пользователя
+            startWebSocket(userData.id);
+        } else {
+            console.error('Failed to fetch user data.');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', (event) => {
+        getUserData();
+    });
+
+    function startWebSocket(userId) {
+        ws = new WebSocket(`ws://localhost:8000/finding-match/5x5/ws?userid=${userId}`);
+        userId = userData.id
+
+        ws.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            switch (data.action) {
+                case 'matchFound':
+                    matchId = Number(data.matchId);
+                    document.getElementById('matchmakingStatus').textContent = `Match with ID ${data.matchId} found. Please confirm your readiness.`;
+                    document.getElementById('confirmReady').style.display = 'block';
+                    document.getElementById('notConfirm').style.display = 'block';
+                    break;
+                case 'matchCancelled':
+                    document.getElementById('matchmakingStatus').textContent = 'Match cancelled. Waiting for a new match...';
+                    hideConfirmationButtons();
+                    break;
+                case 'matchResearch':
+                    document.getElementById('matchmakingStatus').textContent = 'Searching for a new match...';
+                    break;
+                case 'matchStarted':
+                    document.getElementById('matchmakingStatus').textContent = 'Match is starting...';
+                    break;
+                default:
+                    console.log('Unknown action:', data.action);
+            }
+        };
+
+        ws.onerror = function(event) {
+            console.error('WebSocket error:', event);
+        };
+    }
+
+    async function startMatchmaking(is_captain) {
+        userId = userData.id
+        is_captain_search = is_captain
+        console.log(is_captain_search)
+        const teamId = document.getElementById('teamId').value;
+        if (teamId) {
+            const response = await fetch(`/finding-match/5x5/player/start_search/${teamId}`, {
+                method: 'POST'
             });
-
             if (response.ok) {
-                const data = await response.json();
-                document.getElementById('userData').textContent = JSON.stringify(data, null, 2);
-                document.getElementById('userData').setAttribute('data-user-id', data.id);
-                startWebSocket(data.id);
-            } else {
-                document.getElementById('userData').textContent = 'Failed to fetch user data.';
+                document.getElementById('matchmakingStatus').textContent = 'Searching for a match...';
             }
+        } else {
+            alert('Team ID is required to start matchmaking.');
         }
-
-        function startWebSocket(userId) {
-            ws = new WebSocket(`ws://localhost:8000/finding-match/5x5/ws?userid=${userId}`);
-
-            ws.onmessage = function(event) {
-                const data = JSON.parse(event.data);
-                switch (data.action) {
-                    case 'matchFound':
-                        matchId = Number(data.matchId);
-                        document.getElementById('matchmakingStatus').textContent = `Match with ID ${data.matchId} found. Please confirm your readiness.`;
-                        document.getElementById('confirmReady').style.display = 'block';
-                        document.getElementById('notConfirm').style.display = 'block';
-                        break;
-                    case 'matchCancelled':
-                        document.getElementById('matchmakingStatus').textContent = 'Match cancelled. Waiting for a new match...';
-                        hideConfirmationButtons();
-                        break;
-                    case 'matchResearch':
-                        document.getElementById('matchmakingStatus').textContent = 'Searching for a new match...';
-                        break;
-                    case 'matchStarted':
-                        document.getElementById('matchmakingStatus').textContent = 'Match is starting...';
-                        break;
-                    default:
-                        console.log('Unknown action:', data.action);
-                }
-            };
-
-            ws.onerror = function(event) {
-                console.error('WebSocket error:', event);
-            };
-        }
-
-        async function startMatchmaking() {
-            const teamId = document.getElementById('teamId').value;
-            if (teamId) {
-                const response = await fetch(`/finding-match/5x5/start_search/${teamId}`, {
-                    method: 'POST'
-                });
-                if (response.ok) {
-                    document.getElementById('matchmakingStatus').textContent = 'Searching for a match...';
-                }
-            } else {
-                alert('Team ID is required to start matchmaking.');
-            }
-        }
-
-    function hideConfirmationButtons() {
-        document.getElementById('confirmReady').style.display = 'none';
-        document.getElementById('notConfirm').style.display = 'none';
     }
 
     function confirmReady() {
+        userId = userData.id
         console.log(matchId);
         const userId = document.getElementById('userData').getAttribute('data-user-id');
         if (matchId && userId) {
-            fetch(`/finding-match/5x5/confirm_ready/${matchId}/${userId}`, { method: 'POST' })
+            fetch(`/finding-match/5x5/player/confirm_ready/${matchId}/${userId}?is_captain=${is_captain}`, { method: 'POST' })
                 .then(response => response.json())
                 .then(data => {
                     console.log(data);
@@ -93,10 +100,10 @@
     }
 
     function notConfirmReady() {
-        const userId = document.getElementById('userData').getAttribute('data-user-id');
+        userId = userData.id
         const teamId = document.getElementById('teamId').value;
         if (matchId && userId && teamId) {
-            fetch(`/finding-match/5x5/not_ready/${matchId}/${teamId}`, { method: 'POST' })
+            fetch(`/finding-match/5x5/player/not_ready/${matchId}/${teamId}`, { method: 'POST' })
                 .then(response => response.json())
                 .then(data => {
                     console.log(data);
@@ -106,6 +113,44 @@
                 });
         }
         hideConfirmationButtons()
+    }
+
+    function confirmReadyCaptain() {
+        userId = userData.id
+        console.log(matchId);
+        const userId = document.getElementById('userData').getAttribute('data-user-id');
+        if (matchId && userId) {
+            fetch(`/finding-match/5x5/captain/confirm_ready/${matchId}/${userId}`, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    if (data.status === 'confirmed') {
+                        document.getElementById('matchmakingStatus').textContent = 'You confirmed the match.';
+                    }
+                });
+        }
+        hideConfirmationButtons();
+    }
+
+    function notConfirmReadyCaptain() {
+        userId = userData.id
+        const teamId = document.getElementById('teamId').value;
+        if (matchId && userId && teamId) {
+            fetch(`/finding-match/5x5/captain/not_ready/${matchId}/${teamId}`, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    if (data.status === 'search restarted for opposing team') {
+                        document.getElementById('matchmakingStatus').textContent = 'Match declined.';
+                    }
+                });
+        }
+        hideConfirmationButtons()
+    }
+
+    function hideConfirmationButtons() {
+        document.getElementById('confirmReadyPlayer').style.display = 'none';
+        document.getElementById('notConfirmPlayer').style.display = 'none';
     }
 
     </script>
@@ -119,10 +164,12 @@
     <pre id="userData"></pre>
 
     <input type="text" id="teamId" placeholder="Enter Team ID">
-    <button onclick="startMatchmaking()">Start Matchmaking</button>
+    <button onclick="startMatchmaking(true)">Start Matchmaking as team member.</button>
+    <p>In this case you will be only need to confirm founded match.</p>
+    <button onclick="startMatchmaking(false)">Start Matchmaking as team captain.</button>
+    <p>In this case you will be only need to confirm founded match.</p>
     <div id="matchmakingStatus">Waiting to start matchmaking...</div>
-    <button id="confirmReady" style="display:none;" onclick="confirmReady()">Confirm Ready</button>
-    <button id="notConfirm" style="display:none;" onclick="notConfirmReady()">Not Confirm</button>
-
+    <button id="confirmReadyPlayer" style="display:none;" onclick="confirmReadyPlayer()">Confirm Ready</button>
+    <button id="notConfirmReadyPlayer" style="display:none;" onclick="notConfirmReadyPlayer()">Not Confirm</button>
 </body>
 </html>

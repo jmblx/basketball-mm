@@ -1,4 +1,5 @@
 from uuid import UUID
+import os
 
 import fastapi
 from fastapi import Depends
@@ -19,7 +20,7 @@ async def smurf_report(
     session: AsyncSession = Depends(get_async_session),
     #apellant: User = Depends(current_user)
 ):
-    smurf = await session.get(User, smurf_id)
+    #smurf = await session.get(User, smurf_id)
     stmt = (
         select(SoloMatch)
         .where(SoloMatch.players.any(id=smurf_id))
@@ -42,7 +43,10 @@ async def smurf_report(
 
             win = 1 if score > opponent_score else 0
             processed_data.append([score, opponent_score, win])
-    model = load_model('report\my_model.h5')
+    BASE_DIR = os.path.dirname(os.path.realpath(__file__))
+    model_path = os.path.join(BASE_DIR, 'my_model.h5')
+    model = load_model(model_path)
+
     def predict_smurf(match_data):
         prediction = model.predict([match_data])
         return prediction[0][0]

@@ -1,5 +1,6 @@
 import fastapi
 from fastapi import Depends
+from fastapi_cache.decorator import cache
 from sqlalchemy import select, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -8,7 +9,9 @@ from database import get_async_session
 
 router = fastapi.APIRouter(prefix="/stats", tags=["stats"])
 
+
 @router.get("/top5-users-solo")
+#@cache(expire=30)
 async def get_top5_user_solo(
     session: AsyncSession = Depends(get_async_session),
 ):

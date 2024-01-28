@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Страница Команды</title>
+    <style>
+        .team-info {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="team-info">
+        <h1 id="teamName">Загрузка...</h1>
+        <p id="teamCaptain">Капитан: Загрузка...</p>
+        <p id="teamNumber">Участники: Загрузка...</p>
+        <img id="teamImage" src="" alt="Аватар команды" style="max-width: 200px;">
+    </div>
+
+    <button id="joinTeamButton">Присоединиться к команде</button>
+
+    <div id="teamMembers" class="team-members">
+        <h2>Участники команды:</h2>
+        <ul id="membersList"></ul>
+    </div>
+
+    <script>
+        var teamSlug = new URL(window.location.href).pathname.split("/").pop();
+        var teamId;
+        var participants;
+        var userId
+
+        async function getUserData() {
+            const token = localStorage.getItem("auth_token");
+            const response = await fetch('http://localhost:8000/profile/', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                data = await response.json()
+                userId = data.id
+                //console.log(userId)
+                await checkUserInTeam();
+            }
+            else {
+                console.error('токена чела нет')
+            }
+        }
+
+        async function checkUserInTeam() {
+            console.log(userId)
+            console.log(participants)
+            if (participants && userId) {
+                const userIsInTeam = participants.some(member => member.id === userId);
+                if (userIsInTeam) {
+                    // Скрыть кнопку, если пользователь в команде
+                    document.getElementById('joinTeamButton').style.display = "none";
+                }
+            }
+        }
+
+        async function getTeamData() {
+            const response = await fetch(`http://localhost:8000/team/data/${teamSlug}`);
+            if (response.ok) {
+                const data = await response.json();
+                teamId = data.team_id;
+                document.getElementById('teamName').textContent = data.team_name;
+                document.getElementById('teamCaptain').textContent = "Капитан: " + data.team_captain_nickname;
+                document.getElementById('teamNumber').textContent = "Участники: " + data.number;
+                participants = data.participants
+                // Обновление списка участников
+                updateTeamMembers(data.participants);
+                getTeamImage(); // Запуск функции загрузки изображения после получения teamId
+            } else {
+                console.error('Ошибка при получении данных о команде');
+            }
+        }
+
+        function updateTeamMembers(members) {
+            const membersList = document.getElementById('membersList');
+            // membersList.innerHTML = '';  Очищаем текущий список
+
+            members.forEach(member => {
+                let listItem = document.createElement('li');
+                listItem.textContent = member.nickname + ' (рейтинг: ' + member.group_rating + ')';
+                membersList.appendChild(listItem);
+            });
+        }
+
+        async function getTeamImage() {
+            fetch(`http://localhost:8000/team/image/${teamId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Сетевой запрос не удался');
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                const imageUrl = URL.createObjectURL(blob);
+                document.getElementById('teamImage').src = imageUrl;
+            })
+            .catch(error => {
+                console.error('Произошла ошибка при выполнении запроса:', error);
+                alert('Ошибка при загрузке изображения');
+            });
+        }
+
+        async function joinTeam() {
+            const token = localStorage.getItem("auth_token");
+            const response = await fetch(`http://localhost:8000/team/join-team?team_id=${teamId}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                alert('Вы успешно присоединились к команде!');
+
+                // Увеличиваем количество участников на 1
+                let currentNumber = parseInt(document.getElementById('teamNumber').textContent.split(": ")[1]);
+                document.getElementById('teamNumber').textContent = "Участники: " + (currentNumber + 1);
+            } else {
+                alert('Ошибка при попытке присоединиться к команде');
+            }
+        }
+
+
+        document.getElementById('joinTeamButton').addEventListener('click', joinTeam);
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            getTeamData();
+            getUserData();
+        });
+    </script>
+</body>
+</html>

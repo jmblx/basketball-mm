@@ -3,11 +3,13 @@ import shutil
 
 import fastapi
 from PIL import Image
-from fastapi import Depends, Response, UploadFile
+from fastapi import Depends, Request, Response, UploadFile
+from fastapi.responses import FileResponse
 from sqlalchemy import insert, select, func, and_, update
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
-from starlette.status import HTTP_400_BAD_REQUEST, HTTP_200_OK
+from sqlalchemy.orm import joinedload
+from starlette.status import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 
 from auth.base_config import current_user
 from auth.models import User, Role, UserTeam, Team
@@ -15,9 +17,11 @@ from auth.schemas import RoleSchema, TeamSchema
 from config import PROJECT_DEBUG
 from database import get_async_session
 from constants import IMAGES_DIR
-from tournaments.models import TeamTournament, Tournament, StatusEvent
-from utils import create_upload_avatar
+from slugify import slugify
 
+from matchmaking.router import templates
+from tournaments.models import TeamTournament, Tournament, StatusEvent
+from utils import create_upload_avatar, get_user_attrs
 
 router = fastapi.APIRouter(prefix="/team", tags=["teams"])
 
@@ -49,6 +53,9 @@ async def join_team(
             }
         )
         await session.execute(stmt)
+        team = await session.get(Team, team_id)
+        team.number += 1
+        await session.merge(team)
         await session.commit()
         response.status_code = HTTP_200_OK
 
@@ -62,18 +69,18 @@ async def join_team(
 
 @router.post("/add-new-team")
 async def add_new_team(
-    team: TeamSchema,
+    team_params: TeamSchema,
     user: User = Depends(current_user),
     session: AsyncSession = Depends(get_async_session),
 ):
-    team = Team(**team.model_dump())
+    # Создание слага
+
+    team = Team(**team_params.model_dump())
+    slug = slugify(team.name, lowercase=True, allow_unicode=True)
+    team.slug = slug
     team.captain_id = user.id
+    team.players = [user]
     session.add(team)
-    await session.flush()
-    stmt = insert(UserTeam).values(
-        {"team_id": team.id, "user_id": user.id}
-    )
-    await session.execute(stmt)
     await session.commit()
     return {"status": "success"}
 
@@ -137,3 +144,44 @@ async def change_search_mode(
     else:
         return "Ошибка: только капитан может изменить эти настройки"
 
+
+@router.get("/data/{team_slug}")
+async def team_data(
+    response: Response,
+    team_slug: str,
+    session: AsyncSession = Depends(get_async_session),
+):
+    try:
+        team: Team = (await session.execute(
+            select(Team)
+            .options(joinedload(Team.players), joinedload(Team.captain))
+            .where(Team.slug == team_slug)
+        )).unique().scalar_one()
+    except NoResultFound:
+        response.status_code = HTTP_404_NOT_FOUND
+        return {"result": "page not found"}
+    return {
+        "team_id": team.id,
+        "team_name": team.name,
+        "team_captain_nickname": team.captain.nickname,
+        "number": team.number,  # Количество участников
+        "participants": [await get_user_attrs(user) for user in team.players]
+    }
+
+
+@router.get("/image/{team_id}")
+async def get_image(
+    team_id: int,
+    session: AsyncSession = Depends(get_async_session),
+):
+    team = await session.get(Team, team_id)
+    return FileResponse(team.pathfile)
+
+
+@router.get("/page/{team_slug}")
+async def render_team_page(
+    request: Request,
+):
+    return templates.TemplateResponse("team_page.html", {
+        "request": request
+    })

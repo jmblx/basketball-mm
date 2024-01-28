@@ -80,6 +80,38 @@ async function performSearch() {
     displayUserResults(result);
 }
 
+document.getElementById('modal-search-input').addEventListener('input', () => {
+    const searchText = document.getElementById('modal-search-input').value;
+    if (searchText.length > 0) {
+        performSearch(); // Поиск пользователей
+        performTeamSearch(); // Поиск команд
+    } else {
+        document.getElementById('user-search-results').innerHTML = 'Пользователи не найдены';
+        document.getElementById('team-search-results').innerHTML = 'Команды не найдены';
+    }
+});
+
+// Функция для поиска команд
+async function performTeamSearch() {
+    const searchText = document.getElementById('modal-search-input').value;
+    const response = await fetch(`http://127.0.0.1:8000/social/find-team?team_name=${searchText}`);
+    const result = await response.json();
+
+    displayTeamResults(result);
+}
+
+function displayTeamResults(teams) {
+    const teamResultsDiv = document.getElementById('team-search-results');
+    if (Array.isArray(teams) && teams.length > 0) {
+        teamResultsDiv.innerHTML = teams.map(team =>
+            `<a href="http://localhost:8000/team/page/${team.slug}">${team.name}</a>`
+        ).join('<br>');
+    } else {
+        teamResultsDiv.innerHTML = 'Команды не найдены';
+    }
+}
+
+
 function displayUserResults(nicknames) {
     const userResultsDiv = document.getElementById('user-search-results');
     if (Array.isArray(nicknames) && nicknames.length > 0) {
@@ -104,7 +136,7 @@ async function getUserData() {
     const users = await response.json();
 
     // Сортируем пользователей так, чтобы топ 1 был посередине
-    const sortedUsers = [users.top5, users.top3, users.top1, users.top2, users.top4];
+    const sortedUsers = [users.top4, users.top2, users.top1, users.top3, users.top5];
 
     sortedUsers.forEach(async (user, index) => {
         if (user) {
@@ -292,6 +324,7 @@ a {
     text-align: center;
     justify-content: space-around;
     align-items: center;
+    height: 10%;
 }
 .card-container{
     display: grid;
@@ -450,6 +483,3 @@ a {
 </style>
 <a href="https://www.flaticon.com/ru/free-icons/-" title="увеличительное стекло иконки">Увеличительное стекло иконки от Freepik - Flaticon</a>
 </html>
-
-
-

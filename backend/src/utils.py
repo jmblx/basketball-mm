@@ -1,10 +1,10 @@
 import os
 
-from sqlalchemy import select
+from sqlalchemy import select, text, or_, func
 import shutil
 from PIL import Image
 
-from auth.models import User
+from auth.models import User, Team
 from database import async_session_maker
 
 
@@ -73,3 +73,34 @@ def change_layout(text):
     }
 
     return ''.join([conversion.get(char, char) for char in text])
+
+
+async def find_object(entity_class, entity_parameter, entity_mark: str, similarity: float = 0.3):
+    async with async_session_maker() as session:
+        await session.execute(text(f"SET pg_trgm.similarity_threshold = {similarity};"))
+        entity_converted = change_layout(entity_mark)
+        query = select(entity_class).where(
+            or_(
+                func.similarity(entity_parameter, entity_mark) > 0.3,
+                func.similarity(entity_parameter, entity_converted) > 0.3
+            )
+        )
+        result = (await session.execute(query)).unique().fetchall()
+
+        if entity_class != Team:
+            result = [getattr(entity[0], entity_parameter.name) for entity in result]
+        else:
+            result = [{"name": team[0].name, "slug": team[0].slug} for team in result]
+
+        return result if result else {"result": "not found"}
+
+
+async def get_user_attrs(user: User):
+    return {
+        "nickname": user.nickname,
+        "registered_at": user.registered_at,
+        "id": user.id,
+        "rating": user.solo_rating,
+        "group_rating": user.rating_5x5,
+        "details": None,
+    }

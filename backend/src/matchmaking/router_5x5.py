@@ -23,12 +23,7 @@ templates = Jinja2Templates(directory="templates")
 router = APIRouter(prefix="/finding-match/5x5", tags=["matchmaking"])
 
 
-async def notify_clients(message: str):
-    for user_id, websocket in connected_users.items():
-        await websocket.send_text(message)
-
-
-async def notify_team_about_match(player_ids, match_id):
+async def notify_teams_about_match(player_ids, match_id):
     for player_id in player_ids:
         player_id = str(player_id)
         if player_id in connected_users:
@@ -59,12 +54,10 @@ async def add_team_to_search(
     redis
 ):
     await redis.zadd('team_search_queue', {str(team_id): team_rating})
-    await notify_clients(f"Team {team_id} added to search queue")
 
 
 async def remove_team_from_search(team_id: str, redis):
     await redis.zrem('team_search_queue', team_id)
-    await notify_clients(f"Team {team_id} removed from search queue")
 
 
 async def find_opponent(team_id: int, team_rating: int, threshold: int, redis):
@@ -107,7 +100,7 @@ async def search_for_match(team_id, team_rating, redis):
     print(f"opp: {opponent_id}")
     if opponent_id:
         match_id, player_ids = await create_potential_match(team_id, opponent_id, redis)
-        await notify_team_about_match(player_ids, match_id)
+        await notify_teams_about_match(player_ids, match_id)
 
 
 async def create_potential_match(team1_id: int, team2_id: int, redis):
@@ -134,20 +127,29 @@ async def create_potential_match(team1_id: int, team2_id: int, redis):
 
 async def finalize_match(match_id, redis):
     async with async_session_maker() as session:
-        match = await session.get(Match5x5, match_id)
+        match = (await session.execute(
+            select(Match5x5).options(selectinload(Match5x5.teams)).where(Match5x5.id == match_id)
+        )).unique().scalar_one()
         match.status = StatusEvent.pending
         session.add(match)
         await session.commit()
+        await redis.zrem('team_search_queue', str(match.teams[0].id))
+        await redis.zrem('team_search_queue', str(match.teams[1].id))
     await redis.delete(f"match:{match_id}")
     await redis.delete(f"match:{match_id}:team1")
     await redis.delete(f"match:{match_id}:team2")
     await redis.delete(f"match:{match_id}:confirmed_players")
-    await notify_clients(f"Match {match_id} is starting")
 
 
 @router.post("/confirm_ready/{match_id}/{player_id}")
-async def confirm_ready(match_id: int, player_id: UUID, redis=Depends(get_redis)):
-    print('qwerqrwe')
+async def confirm_ready(
+    match_id: int,
+    player_id: UUID,
+    is_captain: bool,
+    redis=Depends(get_redis),
+    session: AsyncSession = Depends(get_async_session),
+):
+    print(is_captain)
     player_id_str = str(player_id)
     is_team1_member = await redis.sismember(f"match:{match_id}:team1", player_id_str)
     is_team2_member = await redis.sismember(f"match:{match_id}:team2", player_id_str)
@@ -164,6 +166,11 @@ async def confirm_ready(match_id: int, player_id: UUID, redis=Depends(get_redis)
     confirmed_players = await redis.scard(f"match:{match_id}:confirmed_players")
 
     if confirmed_players == total_players:
+        match = (await session.execute(
+            select(Match5x5).options(selectinload(Match5x5.teams)).where(Match5x5.id == match_id)
+        )).unique().scalar_one()
+        await notify_team(match.teams[0].id, "matchStarted", f"Match {match_id} is starting")
+        await notify_team(match.teams[1].id, "matchStarted", f"Match {match_id} is starting")
         await finalize_match(match_id, redis)
 
     return {"status": "confirmed"}
@@ -203,7 +210,7 @@ async def not_ready(
     await redis.zrem('team_search_queue', str(opposing_team_id))
     print(opposing_team_id)
     await notify_team(team_id, "matchCancelled", "Match cancelled by your team.")
-    await notify_team(opposing_team_id, "matchResearch", "Searching for a new match.")
+    await notify_team(opposing_team_id, "matchResearch", "Match cancelled by opposing team. Searching for a new match.")
     if opposing_team:
         await add_team_to_search(opposing_team_id, opposing_team.rating_5x5, redis)
         await search_for_match(opposing_team_id, opposing_team.rating_5x5, redis)

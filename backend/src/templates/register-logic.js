@@ -37,7 +37,7 @@ async function registerAndLogin(email, password, name) {
 
     const loginData = await loginResponse.json();
     // Сохранение токена в localStorage
-    localStorage.setItem("access_token", loginData.access_token);
+    localStorage.setItem("auth_token", loginData.access_token);
 
     return loginData;
 

@@ -6,7 +6,7 @@ from fastapi_users.db import (
     SQLAlchemyBaseUserTableUUID,
     SQLAlchemyBaseOAuthAccountTableUUID,
 )
-from sqlalchemy import String, JSON, ForeignKey, DDL, event
+from sqlalchemy import String, JSON, ForeignKey, DDL, event, VARCHAR
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -44,7 +44,7 @@ class User(SQLAlchemyBaseUserTableUUID, Matchmaking, Base):
     def default_nickname(context):
         return str(context.get_current_parameters()["email"].split("@")[0])
 
-    nickname: Mapped[str] = mapped_column(default=default_nickname)
+    nickname: Mapped[str] = mapped_column(default=default_nickname, unique=True)
     role_id: Mapped[int] = mapped_column(ForeignKey("role.id"), default=1)
     roles: Mapped[list["Role"]] = relationship(
         back_populates="user", uselist=True
@@ -66,7 +66,6 @@ class User(SQLAlchemyBaseUserTableUUID, Matchmaking, Base):
         back_populates="captain", uselist=True
     )
     pathfile: Mapped[str] = mapped_column(nullable=True)
-    searching: Mapped[bool] = mapped_column(default=False)
     solo_rating: Mapped[int] = mapped_column(default=2501)
     solomatches = relationship(
         "SoloMatch",
@@ -101,13 +100,14 @@ class Team(Matchmaking, Base):
     __tablename__ = "team"
 
     id: Mapped[intpk]
-    name: Mapped[str]
+    name: Mapped[str] = mapped_column(unique=True, type_=VARCHAR(30))
+    slug: Mapped[str] = mapped_column(unique=True, type_=VARCHAR(40))
     number: Mapped[int] = mapped_column(default=1)
     captain_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
     captain: Mapped["User"] = relationship(
         back_populates="captain_teams", uselist=False
     )
-    is_captain_only_search: Mapped[bool] = mapped_column(default=True)
+    is_captain_only_search: Mapped[bool] = mapped_column(default=False)
     players: Mapped[list["User"]] = relationship(
         back_populates="teams", secondary="user_team", uselist=True
     )

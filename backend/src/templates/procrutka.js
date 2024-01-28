@@ -9,7 +9,7 @@ async function getUserData() {
     const users = await response.json();
 
     // Сортируем пользователей так, чтобы топ 1 был посередине
-    const sortedUsers = [users.top5, users.top3, users.top1, users.top2, users.top4];
+    const sortedUsers = [users.top4, users.top2, users.top1, users.top3, users.top5];
 
     sortedUsers.forEach(async (user, index) => {
         if (user) {

@@ -14,7 +14,7 @@ from auth.schemas import RoleSchema
 from constants import IMAGES_DIR
 from database import get_async_session
 from matchmaking.router import templates
-from utils import create_upload_avatar
+from utils import create_upload_avatar, get_user_attrs
 
 router = fastapi.APIRouter(prefix="/profile", tags=["user-profile"])
 
@@ -22,16 +22,8 @@ router = fastapi.APIRouter(prefix="/profile", tags=["user-profile"])
 @router.get("/")
 async def get_user_data(
     user: User = Depends(current_user),
-    session: AsyncSession = Depends(get_async_session),
 ):
-    return {
-        "status": "success",
-        "nickname": user.nickname,
-        "registered_at": user.registered_at,
-        "id": user.id,
-        "rating": user.solo_rating,
-        "details": None,
-    }
+    return await get_user_attrs(user)
 
 
 @router.get("/img-page")
