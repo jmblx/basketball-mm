@@ -104,3 +104,17 @@ async def get_user_attrs(user: User):
         "group_rating": user.rating_5x5,
         "details": None,
     }
+
+
+async def team_to_dict(team: Team):
+    return {
+        "team_id": team.id,
+        "name": team.name,
+        "number": team.number,
+        "captain_id": team.captain_id,
+        "is_captain_only_search": team.is_captain_only_search,
+        "rating_5x5": team.rating_5x5,
+        "loses": team.match5x5_loses,
+        "wins": team.match5x5_wins,
+        "winrate": team.match5x5_winrate
+    }

@@ -1,5 +1,6 @@
 import os
 import shutil
+from uuid import UUID
 
 import fastapi
 from PIL import Image
@@ -20,6 +21,7 @@ from constants import IMAGES_DIR
 from slugify import slugify
 
 from matchmaking.router import templates
+from teams.schemas import TeamUpdate
 from tournaments.models import TeamTournament, Tournament, StatusEvent
 from utils import create_upload_avatar, get_user_attrs
 
@@ -161,6 +163,7 @@ async def team_data(
         response.status_code = HTTP_404_NOT_FOUND
         return {"result": "page not found"}
     return {
+        "is_captain_only_search": team.is_captain_only_search,
         "team_id": team.id,
         "team_name": team.name,
         "team_captain_nickname": team.captain.nickname,
@@ -185,3 +188,31 @@ async def render_team_page(
     return templates.TemplateResponse("team_page.html", {
         "request": request
     })
+
+
+@router.put("/update/{team_id}")
+async def team_update(
+    team_id: int,
+    team_update: TeamUpdate,
+    response: Response,
+    session: AsyncSession = Depends(get_async_session),
+):
+
+    # Проверяем, что хотя бы одно поле для обновления указано
+    if not any([team_update.name, team_update.is_captain_only_search]):
+        response.status_code = HTTP_404_NOT_FOUND
+        return {"status": "error with request. Data is null."}
+    update_data = {key: value for key, value in team_update.model_dump().items() if value is not None}
+    await session.execute(update(Team).where(Team.id == team_id).values(update_data))
+    await session.commit()
+    return {"status": "success"}
+
+
+@router.get("/check-captainship")
+async def check_captainship(
+    user_id: UUID,
+    team_id: int,
+    session: AsyncSession = Depends(get_async_session),
+):
+    team = await session.get(Team, team_id)
+    return {"isCaptain": team.captain_id == user_id}

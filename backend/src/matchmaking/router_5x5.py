@@ -141,15 +141,13 @@ async def finalize_match(match_id, redis):
     await redis.delete(f"match:{match_id}:confirmed_players")
 
 
-@router.post("/confirm_ready/{match_id}/{player_id}")
-async def confirm_ready(
+@router.post("/player/confirm_ready/{match_id}/{player_id}")
+async def confirm_ready_player(
     match_id: int,
     player_id: UUID,
-    is_captain: bool,
     redis=Depends(get_redis),
     session: AsyncSession = Depends(get_async_session),
 ):
-    print(is_captain)
     player_id_str = str(player_id)
     is_team1_member = await redis.sismember(f"match:{match_id}:team1", player_id_str)
     is_team2_member = await redis.sismember(f"match:{match_id}:team2", player_id_str)
@@ -186,8 +184,8 @@ async def notify_team(team_id, action, message):
                 await connected_users[player_id].send_text(json.dumps({"action": action, "message": message}))
 
 
-@router.post("/not_ready/{match_id}/{team_id}")
-async def not_ready(
+@router.post("/player/not_ready/{match_id}/{team_id}")
+async def not_ready_player(
     match_id: int,
     team_id: int,
 
@@ -211,6 +209,62 @@ async def not_ready(
     print(opposing_team_id)
     await notify_team(team_id, "matchCancelled", "Match cancelled by your team.")
     await notify_team(opposing_team_id, "matchResearch", "Match cancelled by opposing team. Searching for a new match.")
+    if opposing_team:
+        await add_team_to_search(opposing_team_id, opposing_team.rating_5x5, redis)
+        await search_for_match(opposing_team_id, opposing_team.rating_5x5, redis)
+    return {"status": "search restarted for opposing team"}
+
+
+@router.post("/captain/confirm_ready/{match_id}/{team_id}")
+async def confirm_ready(
+    match_id: int,
+    team_id: int,
+    redis=Depends(get_redis),
+    session: AsyncSession = Depends(get_async_session),
+):
+    team_id_str = str(team_id)
+
+    await redis.sadd(f"match:{match_id}:confirmed_teams", team_id_str)
+    confirmed_players = await redis.scard(f"match:{match_id}:confirmed_teams")
+
+    if confirmed_players == 2:
+        match = (await session.execute(
+            select(Match5x5).options(selectinload(Match5x5.teams)).where(Match5x5.id == match_id)
+        )).unique().scalar_one()
+        await notify_team(match.teams[0].id, "matchStarted", f"Match {match_id} is starting")
+        await notify_team(match.teams[1].id, "matchStarted", f"Match {match_id} is starting")
+        await finalize_match(match_id, redis)
+
+    return {"status": "confirmed"}
+
+
+@router.post("/captain/not_ready/{match_id}/{team_id}")
+async def not_ready(
+    match_id: int,
+    team_id: int,
+
+    redis=Depends(get_redis),
+    session: AsyncSession = Depends(get_async_session),
+):
+    match = (await session.execute(
+        select(Match5x5).options(selectinload(Match5x5.teams)).where(Match5x5.id == match_id)
+    )).unique().scalar_one()
+    if match:
+        match.status = StatusEvent.cancelled
+        session.add(match)
+        await session.commit()
+    opposing_team_id = match.teams[0].id if team_id != match.teams[0].id else match.teams[1].id
+    opposing_team = await session.get(Team, opposing_team_id)
+    await redis.delete(f"match:{match_id}:confirmed_teams")
+    await redis.delete(f"match:{match_id}:players")
+
+    await redis.zrem('team_search_queue', str(team_id))
+    await redis.zrem('team_search_queue', str(opposing_team_id))
+    print(opposing_team_id)
+    await notify_team(team_id, "matchCancelled", "Match cancelled by your team's captain.")
+    await notify_team(opposing_team_id, "matchResearch",
+                      "Match cancelled by opposing team's captain. Searching for a new match."
+    )
     if opposing_team:
         await add_team_to_search(opposing_team_id, opposing_team.rating_5x5, redis)
         await search_for_match(opposing_team_id, opposing_team.rating_5x5, redis)
