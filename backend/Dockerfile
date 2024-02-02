@@ -14,7 +14,7 @@ RUN mkdir /fastapi_app
 
 WORKDIR /fastapi_app
 
-COPY src/dev.txt .
+COPY requirements/dev.txt .
 
 RUN pip install -r dev.txt
 

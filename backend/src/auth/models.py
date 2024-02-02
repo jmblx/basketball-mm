@@ -56,6 +56,7 @@ class User(SQLAlchemyBaseUserTableUUID, Matchmaking, Base):
     hashed_password: Mapped[str] = mapped_column(
         String(length=1024), nullable=False
     )
+    phone_number: Mapped[str] = mapped_column(VARCHAR(12), nullable=True)
     is_active: Mapped[bool] = mapped_column(default=True)
     is_superuser: Mapped[bool] = mapped_column(default=False)
     is_verified: Mapped[bool] = mapped_column(default=True)

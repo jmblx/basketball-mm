@@ -18,6 +18,7 @@ from auth.schemas import UserCreate, UserRead, UserUpdate
 from auth.custom_auth_router import router as custom_auth_router
 from config import REDIS_HOST, REDIS_PORT, SECRET_AUTH
 from database import async_session_maker
+from match.router import router as match_data_router
 from matchmaking.router import router as matchmaking_router
 from matchmaking.router_5x5 import router as matchmaking_5x5_router
 from matchmaking.router_5x5_add import router as matchmaking_5x5_router_add
@@ -70,6 +71,7 @@ app.include_router(custom_auth_router)
 app.include_router(teams_router)
 app.include_router(tournaments_router)
 app.include_router(user_data_router)
+app.include_router(match_data_router)
 app.include_router(matchmaking_router)
 app.include_router(matchmaking_5x5_router)
 app.include_router(matchmaking_5x5_router_add)

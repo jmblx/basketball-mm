@@ -1,5 +1,6 @@
 import os
 import shutil
+from typing import List
 from uuid import UUID
 
 import fastapi
@@ -13,17 +14,16 @@ from sqlalchemy.orm import joinedload
 from starlette.status import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 
 from auth.base_config import current_user
-from auth.models import User, Role, UserTeam, Team
-from auth.schemas import RoleSchema, TeamSchema
-from config import PROJECT_DEBUG
+from auth.models import User, UserTeam, Team
+from auth.schemas import TeamSchema
 from database import get_async_session
 from constants import IMAGES_DIR
 from slugify import slugify
 
 from matchmaking.router import templates
-from teams.schemas import TeamUpdate
+from teams.schemas import TeamUpdate, GetTeamImages
 from tournaments.models import TeamTournament, Tournament, StatusEvent
-from utils import create_upload_avatar, get_user_attrs
+from utils import create_upload_avatar, get_user_attrs, get_images_for_objects, generate_zip_archive, get_object_images
 
 router = fastapi.APIRouter(prefix="/team", tags=["teams"])
 
@@ -216,3 +216,13 @@ async def check_captainship(
 ):
     team = await session.get(Team, team_id)
     return {"isCaptain": team.captain_id == user_id}
+
+
+
+@router.get("/teams_images/{team_ids}")
+async def get_teams_images(
+    team_ids: str,
+):
+    images = await get_object_images(Team, team_ids)
+    print(images)
+

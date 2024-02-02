@@ -28,18 +28,18 @@ async def get_user_data(
 
 
 @router.get("/img-page")
-def get_chat_page(request: Request):
+async def get_chat_page(request: Request):
     return templates.TemplateResponse("img.html", {"request": request})
 
 
 @router.post("/uploadfile/user/avatar")
 async def upload_user_avatar(
     file: UploadFile,
-    user_id: UUID,
+    user: User = Depends(current_user)
 ):
     class_ = User
     user_avatar_dir = os.path.join(IMAGES_DIR, "user")
-    res = await create_upload_avatar(user_id, file, class_, user_avatar_dir)
+    res = await create_upload_avatar(user.id, file, class_, user_avatar_dir)
     return res
 
 

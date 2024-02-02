@@ -189,5 +189,5 @@ async def not_ready(
 
 
 @router.get("/")
-def get_chat_page(request: Request):
+async def get_chat_page(request: Request):
     return templates.TemplateResponse("search_solo.html", {"request": request})

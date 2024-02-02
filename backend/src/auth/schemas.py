@@ -35,6 +35,12 @@ class UserUpdate(schemas.BaseUserUpdate):
     pass
 
 
+class UserGoogleRegistration(BaseModel):
+    nickname: Optional[str] = None
+    password: Optional[str] = None
+    phone_number: Optional[str] = None
+
+
 class RoleSchema(BaseModel):
     name: str
     permissions: Dict[str, Any]
