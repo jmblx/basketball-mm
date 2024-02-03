@@ -23,7 +23,7 @@ from slugify import slugify
 from matchmaking.router import templates
 from teams.schemas import TeamUpdate, GetTeamImages
 from tournaments.models import TeamTournament, Tournament, StatusEvent
-from utils import create_upload_avatar, get_user_attrs, get_images_for_objects, generate_zip_archive, get_object_images
+from utils import create_upload_avatar, get_user_attrs, get_object_images
 
 router = fastapi.APIRouter(prefix="/team", tags=["teams"])
 
