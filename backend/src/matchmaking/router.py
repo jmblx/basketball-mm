@@ -66,8 +66,6 @@ async def find_opponent(user_id: UUID, user_rating: int, threshold: int, redis):
     )
     for opponent_id, opponent_rating in opponents:
         if str(opponent_id) != str(user_id):
-
-            print(f"chel {user_id} | opp {opponent_id}")
             return opponent_id, opponent_rating
     return None, None
 
@@ -189,5 +187,5 @@ async def not_ready(
 
 
 @router.get("/")
-async def get_chat_page(request: Request):
+async def get_matchmaking_page(request: Request):
     return templates.TemplateResponse("search_solo.html", {"request": request})

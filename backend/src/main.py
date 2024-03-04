@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from redis import asyncio as aioredis
@@ -65,8 +66,6 @@ app.include_router(
     tags=["users"],
 )
 
-# Кастомные
-
 app.include_router(custom_auth_router)
 app.include_router(teams_router)
 app.include_router(tournaments_router)
@@ -120,6 +119,7 @@ app.add_middleware(
 
 app.add_middleware(PrometheusMiddleware)
 app.add_route("/metrics", handle_metrics)
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 @app.on_event("startup")

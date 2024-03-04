@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teams Images</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+</head>
+<body>
+    <h1>Teams Images</h1>
+    <div id="images-container"></div>
+
+    <script>
+        // Функция для выполнения запроса к серверу и отображения изображений на странице
+        async function fetchAndDisplayImages() {
+            const teamIds = [2, 3]; // Список идентификаторов команд
+            const queryString = `/${teamIds.join(',')}`; // Формируем строку query параметров
+            const response = await fetch(`http://localhost:8000/team/teams_images${queryString}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const blob = await response.blob(); // Получаем ZIP-архив с изображениями
+            const url = URL.createObjectURL(blob); // Создаем URL для объекта Blob
+            const imagesContainer = document.getElementById('images-container');
+            
+            // Создаем тег <img> для каждого изображения в архиве и добавляем его в контейнер
+            const zip = new JSZip();
+            const zipFiles = await zip.loadAsync(blob);
+            for (const [filename, file] of Object.entries(zipFiles.files)) {
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(await file.async('blob'));
+                imagesContainer.appendChild(img);
+            }
+        }
+
+        // Вызываем функцию fetchAndDisplayImages при загрузке страницы
+        window.onload = fetchAndDisplayImages;
+    </script>
+</body>
+</html>

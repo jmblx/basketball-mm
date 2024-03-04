@@ -1,4 +1,5 @@
 import os
+import random
 import shutil
 from typing import List
 from uuid import UUID
@@ -7,10 +8,10 @@ import fastapi
 from PIL import Image
 from fastapi import Depends, Request, Response, UploadFile
 from fastapi.responses import FileResponse
-from sqlalchemy import insert, select, func, and_, update
+from sqlalchemy import insert, select, func, and_, update, exc
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, selectinload
 from starlette.status import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 
 from auth.base_config import current_user
@@ -67,6 +68,29 @@ async def join_team(
             "details": f"Invalid data"
             f"(maybe user already registered in team with team_id = {team_id})"
         }
+    return {"team_id": team.id}
+
+
+@router.put("/leave-team")
+async def left_team(
+    team_id: int,
+    response: Response,
+    user: User = Depends(current_user),
+    session: AsyncSession = Depends(get_async_session),
+):
+    query = select(Team).where(Team.id == team_id).options(selectinload(Team.players))
+    team = (await session.execute(query)).scalar()
+    if team.captain_id == user.id:
+        response.status_code = HTTP_400_BAD_REQUEST
+        return {"details": "user can't leave until user is captain"}
+    if user in team.players:
+        team.players.remove(user)
+        team.number -= 1
+        await session.commit()
+        return {"details": "User has successfully left the team"}
+    else:
+        response.status_code = HTTP_404_NOT_FOUND
+        return {"details": "User is not a member of the team"}
 
 
 @router.post("/add-new-team")
@@ -78,13 +102,13 @@ async def add_new_team(
     # Создание слага
 
     team = Team(**team_params.model_dump())
-    slug = slugify(team.name, lowercase=True, allow_unicode=True)
+    slug = slugify(team.name, lowercase=True)
     team.slug = slug
     team.captain_id = user.id
     team.players = [user]
     session.add(team)
     await session.commit()
-    return {"status": "success"}
+    return {"status": "success", "team_id": team.id}
 
 
 @router.post("/register-team-in-tournament")
@@ -167,6 +191,7 @@ async def team_data(
         "team_id": team.id,
         "team_name": team.name,
         "team_captain_nickname": team.captain.nickname,
+        "team_captain_id": team.captain.id,
         "number": team.number,  # Количество участников
         "participants": [await get_user_attrs(user) for user in team.players]
     }
@@ -197,14 +222,21 @@ async def team_update(
     response: Response,
     session: AsyncSession = Depends(get_async_session),
 ):
-
-    # Проверяем, что хотя бы одно поле для обновления указано
-    if not any([team_update.name, team_update.is_captain_only_search]):
+    print(team_update.model_dump())
+    if not team_update.name and team_update.is_captain_only_search is None:
         response.status_code = HTTP_404_NOT_FOUND
         return {"status": "error with request. Data is null."}
     update_data = {key: value for key, value in team_update.model_dump().items() if value is not None}
-    await session.execute(update(Team).where(Team.id == team_id).values(update_data))
-    await session.commit()
+    if "name" in update_data.keys():
+        update_data["slug"] = slugify(update_data.get("name"), lowercase=True)
+    try:
+        await session.execute(update(Team).where(Team.id == team_id).values(update_data))
+        await session.commit()
+    except exc.IntegrityError:
+        await session.rollback()
+        update_data["slug"] = f'{update_data["slug"]}-{random.randint(team_id+1, (team_id*10+1747))}'
+        await session.execute(update(Team).where(Team.id == team_id).values(update_data))
+        await session.commit()
     return {"status": "success"}
 
 

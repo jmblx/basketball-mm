@@ -19,8 +19,6 @@
 
             if (response.ok) {
                 userData = await response.json();
-                // Теперь userData содержит данные пользователя
-                // Запускаем WebSocket, используя ID пользователя
                 startWebSocket(userData.id);
             } else {
                 console.error('Failed to fetch user data.');
@@ -113,6 +111,29 @@
         hideConfirmationButtons()
     }
 
+    if (window.SharedWorker) {
+        var myWorker = new SharedWorker('shared-websocket-worker.js');
+
+        myWorker.port.start();
+
+        myWorker.port.onmessage = function(e) {
+            // Обработка сообщений от SharedWorker
+            var data = JSON.parse(e.data);
+            switch (data.action) {
+                case 'matchFound':
+                    // Отображение уведомления о найденном матче
+                    // Вы можете использовать здесь свой код для отображения уведомлений
+                    break;
+                // Обработайте другие случаи
+            }
+        };
+
+        function sendMessageToWorker(message) {
+            myWorker.port.postMessage(message);
+        }
+    }
+
+
     </script>
 </head>
 <body>
@@ -120,8 +141,9 @@
 
     <h2>User Data:</h2>
     <pre id="userData"></pre>
-
-    <button onclick="startMatchmaking()">Start Matchmaking</button>
+    <a href="http://localhost:8000/team/page/urod">Страница команды</a> // или например
+    <a onclick="window.location=http://localhost:8000/team/page/urod">Страница команды</a>
+    <button id="startMatchmaking" onclick="startMatchmaking()">Start Matchmaking</button>
     <div id="matchmakingStatus">Waiting to start matchmaking...</div>
     <button id="confirmReady" style="display:none;" onclick="confirmReady()">Confirm Ready</button>
     <button id="notConfirm" style="display:none;" onclick="notConfirmReady()">Not Confirm</button>

@@ -25,21 +25,25 @@
         <input type="checkbox" id="isCaptainOnlySearch"> Поиск только капитана
     </label>
 
-    <button id="joinTeamButton">Присоединиться к команде</button>
+    <button id="joinTeamButton" onclick="joinTeam()">Присоединиться к команде</button>
 
     <div id="teamMembers" class="team-members">
         <h2>Участники команды:</h2>
         <ul id="membersList"></ul>
     </div>
+    <button id="leaveTeamButton" onclick="leaveTeam()" style="display: none;">Покинуть команду</button>
+
 
     <script>
         var teamSlug = new URL(window.location.href).pathname.split("/").pop();
         var teamId;
+        var teamData;
         var participants;
         var userId;
+        var userData;
         var originalTeamName;
         var originalIsCaptainOnlySearch;
-
+        
         async function getUserData() {
             const token = localStorage.getItem("auth_token");
             const response = await fetch('http://localhost:8000/profile/', {
@@ -50,28 +54,37 @@
             });
 
             if (response.ok) {
-                data = await response.json()
-                userId = data.id
-                await checkUserInTeam();
-            }
-            else {
-                console.error('токена чела нет')
+                userData = await response.json();
+                userId = userData.id;
+            } else {
+                console.error('токена чела нет');
             }
         }
 
-        async function checkUserInTeam() {
+        function checkUserInTeam() {
             if (participants && userId) {
                 const userIsInTeam = participants.some(member => member.id === userId);
                 if (userIsInTeam) {
                     document.getElementById('joinTeamButton').style.display = "none";
+                    document.getElementById('leaveTeamButton').style.display = ""; // Показываем кнопку выхода
+                } else {
+                    document.getElementById('leaveTeamButton').style.display = "none";
                 }
             }
+            if (userId && teamData && userId !== teamData.team_captain_id) {
+                document.getElementById('renameTeamButton').style.display = 'none';
+                document.getElementById('newTeamName').style.display = 'none';
+                document.getElementById('saveChangesButton').style.display = 'none';
+                document.getElementById('isCaptainOnlySearch').disabled = true;
+            }
         }
+
 
         async function getTeamData() {
             const response = await fetch(`http://localhost:8000/team/data/${teamSlug}`);
             if (response.ok) {
-                const data = await response.json();
+                data = await response.json(); // Получаем данные
+                teamData = data;
                 teamId = data.team_id;
                 originalTeamName = data.team_name;
                 originalIsCaptainOnlySearch = data.is_captain_only_search;
@@ -79,7 +92,7 @@
                 document.getElementById('teamCaptain').textContent = "Капитан: " + data.team_captain_nickname;
                 document.getElementById('teamNumber').textContent = "Участники: " + data.number;
                 document.getElementById('isCaptainOnlySearch').checked = data.is_captain_only_search;
-                participants = data.participants
+                participants = data.participants;
                 updateTeamMembers(data.participants);
                 getTeamImage();
             } else {
@@ -125,12 +138,21 @@
 
             if (response.ok) {
                 alert('Вы успешно присоединились к команде!');
-                let currentNumber = parseInt(document.getElementById('teamNumber').textContent.split(": ")[1]);
-                document.getElementById('teamNumber').textContent = "Участники: " + (currentNumber + 1);
+                document.getElementById('joinTeamButton').style.display = "none"
+                const newMember = { id: userId, nickname: userData.nickname, group_rating: userData.group_rating};
+                participants.push(newMember);
+                updateTeamMembersList();
             } else {
                 alert('Ошибка при попытке присоединиться к команде');
             }
         }
+
+        function updateTeamMembersList() {
+            const membersList = document.getElementById('membersList');
+            membersList.innerHTML = '';
+            updateTeamMembers(participants);
+        }
+
 
         async function renameTeam() {
             const newName = prompt("Введите новое название команды:", originalTeamName);
@@ -138,10 +160,7 @@
                 document.getElementById('teamName').textContent = newName;
                 document.getElementById('newTeamName').value = newName;
                 document.getElementById('newTeamName').style.display = "";
-                //document.getElementById('saveChangesButton').style.display = "";
 
-
-                // Проверяем наличие изменений и показываем/скрываем кнопку "Сохранить изменения"
                 updateSaveChangesButtonVisibility();
             }
         }
@@ -151,15 +170,14 @@
             const newIsCaptainOnlySearch = document.getElementById('isCaptainOnlySearch').checked;
 
             const changes = {};
-            if (newTeamName !== originalTeamName) {
+            if (newTeamName !== originalTeamName && newTeamName !== "") {
                 changes.name = newTeamName;
             }
             if (newIsCaptainOnlySearch !== originalIsCaptainOnlySearch) {
                 changes.is_captain_only_search = newIsCaptainOnlySearch;
             }
-
+            console.log(changes)
             const token = localStorage.getItem("auth_token");
-            console.log(JSON.stringify(changes))
             const response = await fetch(`http://localhost:8000/team/update/${teamId}`, {
                 method: 'PUT',
                 headers: {
@@ -174,46 +192,86 @@
                 document.getElementById('newTeamName').style.display = "none";
                 document.getElementById('saveChangesButton').style.display = "none";
 
-                // Обновляем originalTeamName и originalIsCaptainOnlySearch только после успешного сохранения
                 if (changes.name) {
                     originalTeamName = changes.name;
                 }
-                if (changes.is_captain_only_search) {
+                if (changes.is_captain_only_search !== null) {
                     originalIsCaptainOnlySearch = changes.is_captain_only_search;
                 }
 
-                // Проверяем наличие изменений и показываем/скрываем кнопку "Сохранить изменения"
                 updateSaveChangesButtonVisibility();
             } else {
                 alert('Ошибка при сохранении изменений');
             }
         }
 
-        // Проверка наличия изменений и обновление видимости кнопки "Сохранить изменения"
         function updateSaveChangesButtonVisibility() {
             const newTeamName = document.getElementById('newTeamName').value;
             const newIsCaptainOnlySearch = document.getElementById('isCaptainOnlySearch').checked;
 
             if (newTeamName === originalTeamName && newIsCaptainOnlySearch === originalIsCaptainOnlySearch) {
-                // Если все значения такие же, как и оригинальные, скрываем кнопку
                 document.getElementById('saveChangesButton').style.display = "none";
             } else {
 
-                // Иначе, показываем кнопку
                 document.getElementById('saveChangesButton').style.display = "";
             }
         }
 
-        // Показать кнопку "Сохранить изменения" при изменении состояния чекбокса
         document.getElementById('isCaptainOnlySearch').addEventListener('change', updateSaveChangesButtonVisibility);
 
-        // Показать кнопку "Сохранить изменения" если внесены какие-либо изменения
         document.addEventListener('DOMContentLoaded', async () => {
-            getTeamData();
-            getUserData();
+            await Promise.all([getUserData(), getTeamData()]);
+            checkUserInTeam();
             document.getElementById('saveChangesButton').addEventListener('click', saveChanges);
             document.getElementById('renameTeamButton').addEventListener('click', renameTeam);
         });
+
+        async function leaveTeam() {
+            const token = localStorage.getItem("auth_token");
+            const response = await fetch(`http://localhost:8000/team/leave-team?team_id=${teamId}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                alert('Вы покинули команду.');
+                document.getElementById('leaveTeamButton').style.display = "none";
+                const index = participants.findIndex(member => member.id === userId);
+                if (index > -1) {
+                    participants.splice(index, 1); // Удаляем пользователя из списка участников
+                    updateTeamMembersList(); // Обновляем список участников на странице
+                }
+            } else {
+                alert('Ошибка при попытке покинуть команду.');
+            }
+        }
+
+        
+        if (window.SharedWorker) {
+            var myWorker = new SharedWorker('/static/js/shared-websocket-worker.js');
+
+            myWorker.port.start();
+
+            myWorker.port.onmessage = function(e) {
+                // Обработка сообщений от SharedWorker
+                var data = JSON.parse(e.data);
+                switch (data.action) {
+                    case 'matchFound':
+                        // Отображение уведомления о найденном матче
+                        // Вы можете использовать здесь свой код для отображения уведомлений
+                        break;
+                    // Обработайте другие случаи
+                }
+            };
+
+            function sendMessageToWorker(message) {
+                myWorker.port.postMessage(message);
+            }
+        }
+
     </script>
 </body>
 </html>

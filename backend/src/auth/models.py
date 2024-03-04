@@ -84,7 +84,7 @@ class User(SQLAlchemyBaseUserTableUUID, Matchmaking, Base):
     )
 
 
-create_index = DDL("CREATE INDEX search_vector_index ON users USING GIN(search_vector);")
+create_index = DDL('CREATE INDEX search_vector_index ON "user" USING GIN(search_vector);')
 event.listen(User.__table__, 'after_create', create_index)
 
 
