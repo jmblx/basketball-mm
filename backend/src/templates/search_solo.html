@@ -3,9 +3,7 @@
 <head>
     <title>1x1 Matchmaking System</title>
     <script>
-        var ws;
         var matchId;
-
         var userData;
 
         async function getUserData() {
@@ -19,23 +17,20 @@
 
             if (response.ok) {
                 userData = await response.json();
-                startWebSocket(userData.id);
-            } else {
+            }
+            else {
                 console.error('Failed to fetch user data.');
             }
         }
 
-        document.addEventListener('DOMContentLoaded', (event) => {
-            getUserData();
-        });
-
-        function startWebSocket(userId) {
-            ws = new WebSocket(`ws://localhost:8000/finding-match/1x1/ws?userid=${userId}`);
-            userId = userData.id
-            ws.onmessage = function(event) {
-                const data = JSON.parse(event.data);
+        if (window.SharedWorker) {
+            var myWorker = new SharedWorker('/static/js/shared-websocket-worker.js');
+            myWorker.port.start();
+            myWorker.port.onmessage = function(e) {
+                var data = JSON.parse(e.data);
                 switch (data.action) {
                     case 'matchFound':
+                        console.log(data.matchID)
                         matchId = Number(data.matchId);
                         document.getElementById('matchmakingStatus').textContent = `Match with ID ${data.matchId} found. Please confirm your readiness.`;
                         document.getElementById('confirmReady').style.display = 'block';
@@ -54,95 +49,55 @@
                     default:
                         console.log('Unknown action:', data.action);
                 }
-            };
+            }
+        };
 
-            ws.onerror = function(event) {
-                console.error('WebSocket error:', event);
-            };
+
+        function sendMessageToWorker(message) {
+                myWorker.port.postMessage(JSON.stringify(message));
         }
 
-        async function startMatchmaking() {
-            userId = userData.id
-            if (userId) {
-                const response = await fetch(`http://localhost:8000/finding-match/1x1/start_search/${userId}`, {
-                    method: 'POST'
-                });
-                if (response.ok) {
-                    document.getElementById('matchmakingStatus').textContent = 'Searching for a match...';
-                }
-            } else {
+        function startMatchmaking() {
+            if (userData && userData.id) {
+                sendMessageToWorker({ action: "startSearch", userId: userData.id });
+                document.getElementById('matchmakingStatus').textContent = 'Searching for a match...';
+            }
+            else {
                 alert('User ID is required to start matchmaking.');
             }
         }
 
-    function hideConfirmationButtons() {
-        document.getElementById('confirmReady').style.display = 'none';
-        document.getElementById('notConfirm').style.display = 'none';
-    }
-
-    function confirmReady() {
-        console.log(matchId);
-        userId = userData.id
-        if (matchId && userId) {
-            fetch(`http://localhost:8000/finding-match/1x1/confirm_ready/${matchId}/${userId}`, { method: 'POST' })
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data);
-                    if (data.status === 'confirmed') {
-                        document.getElementById('matchmakingStatus').textContent = 'You confirmed the match.';
-                    }
-                });
+        function hideConfirmationButtons() {
+            document.getElementById('confirmReady').style.display = 'none';
+            document.getElementById('notConfirm').style.display = 'none';
         }
-        hideConfirmationButtons();
-    }
 
-    function notConfirmReady() {
-        userId = userData.id
-        if (matchId && userId) {
-            fetch(`/finding-match/1x1/not_ready/${matchId}/${userId}`, { method: 'POST' })
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data);
-                    if (data.status === 'search restarted for opposing user') {
-                        document.getElementById('matchmakingStatus').textContent = 'Match declined.';
-                    }
-                });
-        }
-        hideConfirmationButtons()
-    }
-
-    if (window.SharedWorker) {
-        var myWorker = new SharedWorker('shared-websocket-worker.js');
-
-        myWorker.port.start();
-
-        myWorker.port.onmessage = function(e) {
-            // Обработка сообщений от SharedWorker
-            var data = JSON.parse(e.data);
-            switch (data.action) {
-                case 'matchFound':
-                    // Отображение уведомления о найденном матче
-                    // Вы можете использовать здесь свой код для отображения уведомлений
-                    break;
-                // Обработайте другие случаи
+        function confirmReady() {
+            if (matchId && userData && userData.id) {
+                sendMessageToWorker({ action: "confirmReady", matchId: matchId, userId: userData.id });
+                hideConfirmationButtons();
             }
-        };
-
-        function sendMessageToWorker(message) {
-            myWorker.port.postMessage(message);
         }
-    }
 
+        function notConfirmReady() {
+            if (matchId && userData && userData.id) {
+                sendMessageToWorker({ action: "notConfirmReady", matchId: matchId, userId: userData.id });
+                hideConfirmationButtons();
+            }
+        }
 
+        document.addEventListener('DOMContentLoaded', (event) => {
+            getUserData();
+        });
     </script>
 </head>
 <body>
+
     <h1>1x1 Matchmaking</h1>
 
     <h2>User Data:</h2>
     <pre id="userData"></pre>
-    <a href="http://localhost:8000/team/page/urod">Страница команды</a> // или например
-    <a onclick="window.location=http://localhost:8000/team/page/urod">Страница команды</a>
+    <a href="http://localhost:8000/team/page/urod">Страница команды</a>
     <button id="startMatchmaking" onclick="startMatchmaking()">Start Matchmaking</button>
     <div id="matchmakingStatus">Waiting to start matchmaking...</div>
     <button id="confirmReady" style="display:none;" onclick="confirmReady()">Confirm Ready</button>

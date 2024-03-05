@@ -20,10 +20,7 @@
 
         if (response.ok) {
             userData = await response.json();
-            // Теперь userData содержит данные пользователя
-            // Запускаем WebSocket, используя ID пользователя
             startWebSocket(userData.id);
-            // Загружаем команды пользователя после получения данных о пользователе
             loadUserTeams(userData.id);
         } else {
             console.error('Failed to fetch user data.');
@@ -38,37 +35,29 @@
     if (response.ok) {
         const userTeams = await response.json();
         const teamSelect = document.getElementById('teamSelect');
-        // Очищаем существующие элементы в select
         teamSelect.innerHTML = '';
-        // Добавляем команды пользователя в select
         for (const teamId in userTeams) {
             const option = document.createElement('option');
-            option.value = userTeams[teamId].team_id; // Используем "team_id" как значение
-            option.textContent = userTeams[teamId].name; // Используем имя команды для отображения
+            option.value = userTeams[teamId].team_id;
+            option.textContent = userTeams[teamId].name;
             teamSelect.appendChild(option);
         }
 
-        // Add event listener to teamSelect
         teamSelect.addEventListener('change', async function () {
             const selectedTeamId = teamSelect.value;
             const isCaptain = await checkCaptainship(userData.id, selectedTeamId);
             if (isCaptain) {
-                // User is a captain, show captainSearch block
                 document.getElementById('captainSearch').style.display = 'block';
             } else {
-                // User is not a captain, hide captainSearch block
                 document.getElementById('captainSearch').style.display = 'none';
             }
         });
 
-        // Check captainship for the initially selected team
         const initiallySelectedTeamId = teamSelect.value;
         const isCaptain = await checkCaptainship(userData.id, initiallySelectedTeamId);
         if (isCaptain) {
-            // User is a captain, show captainSearch block
             document.getElementById('captainSearch').style.display = 'block';
         } else {
-            // User is not a captain, hide captainSearch block
             document.getElementById('captainSearch').style.display = 'none';
         }
     }   else {

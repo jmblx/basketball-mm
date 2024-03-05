@@ -28,13 +28,15 @@ async def notify_user_about_match(player_ids, match_id):
             await connected_users[player_id].send_text(
                 json.dumps({"action": "matchFound", "matchId": match_id})
             )
+            print(f"message posted to {player_id}")
+        print(connected_users)
 
 
 connected_users = {}
 
 
 @router.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket, userid):
+async def websocket_endpoint(websocket: WebSocket, userid, redis=Depends(get_redis),):
     await websocket.accept()
     connected_users[userid] = websocket
     try:
@@ -42,6 +44,7 @@ async def websocket_endpoint(websocket: WebSocket, userid):
             data = await websocket.receive_text()
 
     except WebSocketDisconnect:
+        await redis.zrem('user_search_queue', str(userid))
         del connected_users[userid]
 
 

@@ -10,6 +10,10 @@
     </style>
 </head>
 <body>
+    <div id="matchInvitation" style="display:none; margin-top:20px;">
+        <button id="acceptMatch" style="background-color: green; color: white; padding: 10px 20px; margin-right: 10px;">Принять матч</button>
+        <button id="declineMatch" style="background-color: red; color: white; padding: 10px 20px;">Не принять</button>
+    </div>
     <div class="team-info">
         <h1 id="teamName">Загрузка...</h1>
         <p id="teamCaptain">Капитан: Загрузка...</p>
@@ -56,10 +60,49 @@
             if (response.ok) {
                 userData = await response.json();
                 userId = userData.id;
-            } else {
+            }
+            else {
                 console.error('токена чела нет');
             }
         }
+
+        var myWorker;
+        function sendMessageToWorker(message) {
+            myWorker.port.postMessage(JSON.stringify(message));
+        }
+
+        if (window.SharedWorker) {
+            myWorker = new SharedWorker('/static/js/shared-websocket-worker.js');
+            myWorker.port.start();
+
+            myWorker.port.onmessage = function(e) {
+                var data = JSON.parse(e.data);
+                switch (data.action) {
+                    case 'matchFound':
+                        console.log('Match found:', data.matchId);
+                        matchId = data.matchId; // Убедитесь, что переменная matchId объявлена глобально
+                        document.getElementById('matchInvitation').style.display = 'block';
+                        break;
+                }
+            };
+
+            function sendMessageToWorker(message) {
+                if (myWorker) {
+                    myWorker.port.postMessage(JSON.stringify(message));
+                }
+            }
+
+            document.getElementById('acceptMatch').addEventListener('click', function() {
+                sendMessageToWorker({ action: "confirmReady", matchId: matchId, userId: userData.id });
+                document.getElementById('matchInvitation').style.display = 'none'; // Скрываем кнопки после нажатия
+            });
+
+            document.getElementById('declineMatch').addEventListener('click', function() {
+                sendMessageToWorker({ action: "notConfirmReady", matchId: matchId, userId: userData.id });
+                document.getElementById('matchInvitation').style.display = 'none'; // Скрываем кнопки после нажатия
+            });
+        }
+
 
         function checkUserInTeam() {
             if (participants && userId) {
@@ -249,28 +292,6 @@
             }
         }
 
-        
-        if (window.SharedWorker) {
-            var myWorker = new SharedWorker('/static/js/shared-websocket-worker.js');
-
-            myWorker.port.start();
-
-            myWorker.port.onmessage = function(e) {
-                // Обработка сообщений от SharedWorker
-                var data = JSON.parse(e.data);
-                switch (data.action) {
-                    case 'matchFound':
-                        // Отображение уведомления о найденном матче
-                        // Вы можете использовать здесь свой код для отображения уведомлений
-                        break;
-                    // Обработайте другие случаи
-                }
-            };
-
-            function sendMessageToWorker(message) {
-                myWorker.port.postMessage(message);
-            }
-        }
 
     </script>
 </body>
