@@ -47,7 +47,8 @@
         var userData;
         var originalTeamName;
         var originalIsCaptainOnlySearch;
-        
+        var matchId;
+
         async function getUserData() {
             const token = localStorage.getItem("auth_token");
             const response = await fetch('http://localhost:8000/profile/', {
@@ -71,16 +72,29 @@
             myWorker.port.postMessage(JSON.stringify(message));
         }
 
-        if (window.SharedWorker) {
+       if (window.SharedWorker) {
             myWorker = new SharedWorker('/static/js/shared-websocket-worker.js');
             myWorker.port.start();
 
             myWorker.port.onmessage = function(e) {
                 var data = JSON.parse(e.data);
+                matchId = data.matchId;
                 switch (data.action) {
                     case 'matchFound':
-                        console.log('Match found:', data.matchId);
-                        matchId = data.matchId; // Убедитесь, что переменная matchId объявлена глобально
+                        resetMatchButtons();
+                        document.getElementById('matchInvitation').style.display = 'block';  // Это гарантирует, что контейнер становится видимым
+                        break;
+                    case 'matchFound5x5Cap':
+                        console.log('5x5 Match for captain found:', data.matchId);
+                        console.log(document.getElementById('acceptMatch').dataset.role)
+                        document.getElementById('acceptMatch').dataset.role = 'captain';
+                        document.getElementById('declineMatch').dataset.role = 'captain';
+                        document.getElementById('matchInvitation').style.display = 'block';
+                        break;
+                    case 'matchFound5x5Mem':
+                        console.log('5x5 Match for member found:', data.matchId);
+                        document.getElementById('acceptMatch').dataset.role = 'member';
+                        document.getElementById('declineMatch').dataset.role = 'member';
                         document.getElementById('matchInvitation').style.display = 'block';
                         break;
                 }
@@ -92,17 +106,28 @@
                 }
             }
 
+            function resetMatchButtons() {
+                console.log(document.getElementById('acceptMatch'))
+                document.getElementById('acceptMatch').dataset.role = '';
+                document.getElementById('declineMatch').dataset.role = '';
+                document.getElementById('acceptMatch').style.display = 'none';
+                document.getElementById('declineMatch').style.display = 'none';
+            }
+
             document.getElementById('acceptMatch').addEventListener('click', function() {
-                sendMessageToWorker({ action: "confirmReady", matchId: matchId, userId: userData.id });
-                document.getElementById('matchInvitation').style.display = 'none'; // Скрываем кнопки после нажатия
+                const role = this.dataset.role;
+                const action = role === 'captain' ? 'confirmReadyCaptain' : role === 'member' ? 'confirmReadyPlayer' : 'confirmReady';
+                sendMessageToWorker({ action: action, matchId: matchId, userId: userData.id, teamId: teamId });
+                resetMatchButtons();
             });
 
             document.getElementById('declineMatch').addEventListener('click', function() {
-                sendMessageToWorker({ action: "notConfirmReady", matchId: matchId, userId: userData.id });
-                document.getElementById('matchInvitation').style.display = 'none'; // Скрываем кнопки после нажатия
+                const role = this.dataset.role;
+                const action = role === 'captain' ? 'notConfirmReadyCaptain' : role === 'member' ? 'notConfirmReadyPlayer' : 'notConfirmReady';
+                sendMessageToWorker({ action: action, matchId: matchId, userId: userData.id, teamId: teamId });
+                resetMatchButtons();
             });
-        }
-
+       }
 
         function checkUserInTeam() {
             if (participants && userId) {

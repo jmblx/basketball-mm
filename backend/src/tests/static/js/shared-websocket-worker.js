@@ -2,27 +2,10 @@ var ws;
 var clients = [];
 var wsReady = false;
 
-function closeCurrentConnection() {
-    if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.close();
-    }
-}
-
-async function startWebSocket(objectId, matchType, teamId) {
-
-    closeCurrentConnection();
+async function startWebSocket(objectId, matchType) {
     return new Promise((resolve, reject) => {
-        teamId = teamId || null
 
-        let team_info;
-        if (teamId) {
-            teamInfo = `&teamid=${teamId}`
-        }
-        else {
-            teamInfo = ''
-        }
-
-        ws = new WebSocket(`ws://localhost:8000/finding-match/${matchType}/ws?userid=${objectId}${teamInfo}`);
+        ws = new WebSocket(`ws://localhost:8000/finding-match/${matchType}/ws?userid=${objectId}`);
 
         ws.onopen = function() {
             wsReady = true;
@@ -76,8 +59,6 @@ function notConfirmReady1x1(userId, matchId) {
 }
 
 function confirmReadyPlayer(matchId, userId) {
-    console.log(userId)
-    console.log(matchId)
     if (matchId && userId) {
         fetch(`http://localhost:8000/finding-match/5x5/player/confirm_ready/${matchId}/${userId}`, { method: 'POST' })
             .then(response => response.json())
@@ -129,12 +110,8 @@ function notConfirmReadyCaptain(matchId, teamId) {
     }
 }
 
-function matchStarted() {
-    window.location = 'http://penis'
-}
-
 async function startFindingMatch(objectId, matchType) {
-    if (objectId && wsReady) {
+    if (userId && wsReady) {
         const response = await fetch(`http://localhost:8000/finding-match/${matchType}/start_search/${objectId}`, {
             method: 'POST'
         });
@@ -155,15 +132,12 @@ self.onconnect = function(e) {
     port.onmessage = async function(event) {
         var data = JSON.parse(event.data);
         finderId = data.finderId
-        userId = data.userId
         matchId = data.matchId
         matchType = data.matchType
-        teamId = data.teamId
-        console.log(data.action)
         if (matchType === '1x1') {
             switch (data.action) {
                 case 'startSearch':
-                    if (finderId) {
+                    if (userId) {
                         if (!ws || !wsReady) {
                             try {
                                 await startWebSocket(finderId, matchType);
@@ -187,14 +161,11 @@ self.onconnect = function(e) {
         }
         else {
             switch (data.action) {
-                case 'connect5x5':
-                    await startWebSocket(userId, matchType, finderId);
-                    break;
                 case 'startSearch':
                     if (finderId) {
                         if (!ws || !wsReady) {
                             try {
-                                await startWebSocket(userId, matchType, finderId);
+                                await startWebSocket(finderId, matchType);
                                 startFindingMatch(finderId, matchType);
                             } catch (error) {
                                 console.log('Не удалось установить WebSocket соединение:', error);
@@ -206,20 +177,12 @@ self.onconnect = function(e) {
                     break;
                 case 'confirmReadyPlayer':
                     confirmReadyPlayer(matchId, userId)
-                    break;
                 case 'notConfirmReadyPlayer':
                     notConfirmReadyPlayer(matchId, teamId)
-                    break;
                 case 'confirmReadyCaptain':
-                    console.log("222")
                     confirmReadyCaptain(matchId, teamId)
-                    break;
                 case 'notConfirmReadyCaptain':
-                    console.log("dsdasd")
                     notConfirmReadyCaptain(matchId, teamId)
-                    break;
-                case 'matchStarted':
-                    matchStarted()
             }
         }
     };

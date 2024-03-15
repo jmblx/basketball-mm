@@ -4,11 +4,13 @@ import random
 from uuid import UUID
 
 import fastapi
-from fastapi import Depends, UploadFile, Request
+from fastapi import Depends, UploadFile, Request, Response
 from fastapi.responses import FileResponse
 from sqlalchemy import insert, select, delete, update
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
+from starlette.status import HTTP_404_NOT_FOUND
 
 from auth.base_config import current_user
 from auth.models import User, Role, Team, UserTeam
@@ -16,6 +18,7 @@ from auth.schemas import RoleSchema
 from constants import IMAGES_DIR
 from database import get_async_session
 from matchmaking.router import templates
+from user_data.schemas import LinkTG
 from utils import create_upload_avatar, get_user_attrs, team_to_dict
 
 router = fastapi.APIRouter(prefix="/profile", tags=["user-profile"])
@@ -111,3 +114,22 @@ async def delete_user(
     await session.commit()
 
     return {"message": "User deleted and new captains assigned where applicable"}
+
+
+@router.put("/link/tg/")
+async def link_tg(
+    data: LinkTG,
+    response: Response,
+    session: AsyncSession = Depends(get_async_session),
+):
+    try:
+        stmt = (
+            update(User).where(User.email == data.user_email).values({"tg_id": data.tg_id})
+        )
+        await session.execute(stmt)
+        await session.commit()
+        user = (await session.execute(select(User.id).where(User.email == data.user_email))).scalar()
+        return {"response": user}
+    except IntegrityError:
+        response.status_code = HTTP_404_NOT_FOUND
+        return {"response": "произошла ошибка"}

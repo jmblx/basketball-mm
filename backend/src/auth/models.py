@@ -6,7 +6,7 @@ from fastapi_users.db import (
     SQLAlchemyBaseUserTableUUID,
     SQLAlchemyBaseOAuthAccountTableUUID,
 )
-from sqlalchemy import String, JSON, ForeignKey, DDL, event, VARCHAR
+from sqlalchemy import String, JSON, ForeignKey, DDL, event, VARCHAR, INTEGER
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -60,6 +60,7 @@ class User(SQLAlchemyBaseUserTableUUID, Matchmaking, Base):
     is_active: Mapped[bool] = mapped_column(default=True)
     is_superuser: Mapped[bool] = mapped_column(default=False)
     is_verified: Mapped[bool] = mapped_column(default=True)
+    tg_id: Mapped[int] = mapped_column(INTEGER(), nullable=True, unique=True)
     teams: Mapped[list["Team"]] = relationship(
         back_populates="players", secondary="user_team", uselist=True
     )

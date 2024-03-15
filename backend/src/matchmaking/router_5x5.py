@@ -24,19 +24,21 @@ router = APIRouter(prefix="/finding-match/5x5", tags=["matchmaking"])
 
 
 async def notify_teams_about_match(player_ids, match_id):
+    print(f"Дебилы: {player_ids}")
+    print(f"Законнекченные: {connected_users}")
+    msg = "matchFound5x5Cap" if len(player_ids) == 2 else "matchFound5x5Mem"
     for player_id in player_ids:
-        player_id = str(player_id)
         if player_id in connected_users:
-            print(f"{player_id}\n{connected_users}")
+            print(f"message sent to {player_id}")
             await connected_users[player_id].send_text(
-                json.dumps({"action": "matchFound", "matchId": match_id}))
+                json.dumps({"action": msg, "matchId": match_id}))
 
 
 connected_users = {}
 
 
 @router.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket, userid):
+async def websocket_endpoint(websocket: WebSocket, userid: UUID, teamid: int, redis=Depends(get_redis)):
     await websocket.accept()
     connected_users[userid] = websocket
     print(connected_users)
@@ -45,6 +47,9 @@ async def websocket_endpoint(websocket: WebSocket, userid):
             data = await websocket.receive_text()
 
     except WebSocketDisconnect:
+
+        await redis.zrem('team_search_queue', str(teamid))
+
         del connected_users[userid]
 
 
@@ -86,6 +91,7 @@ async def start_search(
     )).unique().scalar_one()
     await add_team_to_search(team_id, team.rating_5x5, redis)
     background_tasks.add_task(search_for_match, team_id, team.rating_5x5, redis)
+    print(f" команда {team_id}")
     return {"message": "Search started"}
 
 
@@ -97,7 +103,7 @@ async def stop_search(team_id: int, redis=Depends(get_redis)):
 
 async def search_for_match(team_id, team_rating, redis):
     opponent_id, _ = await find_opponent(team_id, team_rating, 100, redis)
-    print(f"opp: {opponent_id}")
+   # print(f"opp: {opponent_id}")
     if opponent_id:
         match_id, player_ids = await create_potential_match(team_id, opponent_id, redis)
         await notify_teams_about_match(player_ids, match_id)
@@ -179,9 +185,14 @@ async def notify_team(team_id, action, message):
         team = (await session.execute(
             select(Team).options(joinedload(Team.players)).where(Team.id == team_id)
         )).unique().scalar_one()
-        for player_id in team.players:
-            if player_id in connected_users:
-                await connected_users[player_id].send_text(json.dumps({"action": action, "message": message}))
+        for player in team.players:
+            print(player.id)
+            if player.id in connected_users:
+                await connected_users[player.id].send_text(json.dumps({"action": action, "message": message}))
+                print(player.id)
+    print(connected_users)
+
+    print(action)
 
 
 @router.post("/player/not_ready/{match_id}/{team_id}")

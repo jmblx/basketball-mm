@@ -1,3 +1,5 @@
+import json
+
 import fastapi
 from fastapi import Depends
 from sqlalchemy import update
@@ -5,7 +7,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth.models import User
 from database import get_async_session
-from solomatch.schemas import SetSoloMatchResult
+from producer import AIOWebProducer, get_producer
+from redis_config import get_redis
+from solomatch.schemas import SetSoloMatchResult, Message
 from tournaments.models import SoloMatch
 
 router = fastapi.APIRouter(prefix="/solomatch", tags=["matchmaking"])
@@ -16,6 +20,8 @@ async def set_solomatch_result(
     match_id: int,
     match_result: SetSoloMatchResult,
     session: AsyncSession = Depends(get_async_session),
+    redis=Depends(get_redis),
+    producer: AIOWebProducer = Depends(get_producer)
 ):
     first_player_id = match_result.first_player_result.id
     first_player_score = match_result.first_player_result.score
@@ -27,7 +33,6 @@ async def set_solomatch_result(
     loser_id = first_player_id if first_player_score\
         < second_player_score else second_player_id
 
-    # Обновление результата матча
     await session.execute(
         update(SoloMatch)
         .where(SoloMatch.id == match_id)
@@ -46,25 +51,45 @@ async def set_solomatch_result(
         })
     )
 
-    winner_stats = await session.get(User, winner_id)
-    loser_stats = await session.get(User, loser_id)
+    winner = await session.get(User, winner_id)
+    loser = await session.get(User, loser_id)
 
-    winner_wins = winner_stats.solomatch_wins + 1
-    winner_winrate = winner_wins / (winner_wins + winner_stats.solomatch_loses) * 100
+    winner_wins = winner.solomatch_wins + 1
+    winner_winrate = winner_wins / (winner_wins + winner.solomatch_loses) * 100
     await session.execute(
         update(User)
         .where(User.id == winner_id)
         .values(solomatch_wins=winner_wins, solomatch_winrate=winner_winrate)
     )
 
-    loser_loses = loser_stats.solomatch_loses + 1
-    loser_winrate = loser_stats.solomatch_wins / (loser_stats.solomatch_wins + loser_loses) * 100
+    loser_loses = loser.solomatch_loses + 1
+    loser_winrate = loser.solomatch_wins / (loser.solomatch_wins + loser_loses) * 100
     await session.execute(
         update(User)
         .where(User.id == loser_id)
         .values(solomatch_loses=loser_loses, solomatch_winrate=loser_winrate)
     )
-
     await session.commit()
-    return {"details": f"now in match with id = {match_id} winner is {winner_id}"}
+    if await redis.smembers(f"auth:{winner.tg_id}"):
+        winner_message = {str(winner.tg_id): Message(
+            match_type="1x1",
+            match_result="win",
+            solo_rating_change=0,
+            current_solo_rating=winner.solo_rating,
+            opponent_nickname=loser.nickname,
+        )}
+        message_to_produce = json.dumps(winner_message.model_dump()).encode(encoding="utf-8")
+        await producer.send(value=message_to_produce)
+    if await redis.smembers(f"auth:{loser.tg_id}"):
+        loser_message = {str(loser.tg_id): Message(
+            match_type="1x1",
+            match_result="lose",
+            solo_rating_change=0,
+            current_solo_rating=loser.solo_rating,
+            opponent_nickname=winner.nickname,
+        )}
+        message_to_produce = json.dumps(loser_message.model_dump()).encode(encoding="utf-8")
+        await producer.send(value=message_to_produce)
 
+
+    return {"details": f"now in match with id = {match_id} winner is {winner_id}"}

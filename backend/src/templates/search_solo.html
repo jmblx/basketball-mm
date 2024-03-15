@@ -59,7 +59,7 @@
 
         function startMatchmaking() {
             if (userData && userData.id) {
-                sendMessageToWorker({ action: "startSearch", userId: userData.id });
+                sendMessageToWorker({ action: "startSearch", finderId: userData.id, matchType: '1x1' });
                 document.getElementById('matchmakingStatus').textContent = 'Searching for a match...';
             }
             else {
@@ -74,14 +74,14 @@
 
         function confirmReady() {
             if (matchId && userData && userData.id) {
-                sendMessageToWorker({ action: "confirmReady", matchId: matchId, userId: userData.id });
+                sendMessageToWorker({ action: "confirmReady", matchId: matchId, finderId: userData.id, matchType: '1x1' });
                 hideConfirmationButtons();
             }
         }
 
         function notConfirmReady() {
             if (matchId && userData && userData.id) {
-                sendMessageToWorker({ action: "notConfirmReady", matchId: matchId, userId: userData.id });
+                sendMessageToWorker({ action: "notConfirmReady", matchId: matchId, finderId: userData.id, matchType: '1x1' });
                 hideConfirmationButtons();
             }
         }

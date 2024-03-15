@@ -143,7 +143,7 @@ async def driver1(authenticated_token):
     driver.maximize_window()
     driver.get("http://localhost:8000/finding-match/1x1/")
     # Установка токена в localStorage
-    script = f"localStorage.setItem('auth_token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0ZWJlYzgwNC00MGI0LTQ4MGMtYWUwMC05MGNhMjQzZDAyM2UiLCJhdWQiOlsiZmFzdGFwaS11c2VyczphdXRoIl0sImV4cCI6MTcwODIzNDk0OX0._J8YQSgcFV_amF66vGeAWzJcsc5wSlCsDhYiMNR72qw');"
+    script = f"localStorage.setItem('auth_token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2MmViMGEwOC00YmE5LTQwNmUtOWYzMi1jOTlkZWExOTUwNTAiLCJhdWQiOlsiZmFzdGFwaS11c2VyczphdXRoIl0sImV4cCI6MTcwOTc3NzA5OH0.AQI9laFI9EOC8KEsB9iWMTgIEdwyZL7UQBW09Z1QNV0');"
     driver.execute_script(script)
     driver.refresh()  # Обновите страницу, чтобы учесть новый токен
     yield driver
@@ -157,7 +157,7 @@ async def driver2(authenticated_token):
     driver.maximize_window()
     driver.get("http://localhost:8000/finding-match/1x1/")
     # Установка токена в localStorage
-    script = f"localStorage.setItem('auth_token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmZDRjZGIxZS01MTc1LTQ2NjUtYTI1Yi04OGU0ODAyMzM4YWIiLCJhdWQiOlsiZmFzdGFwaS11c2VyczphdXRoIl0sImV4cCI6MTcwODIzNjk1MH0.wf79qZo8SCQ-mNLgZclgwFBZ1n9gBuhpP4oxo6rC2P4');"
+    script = f"localStorage.setItem('auth_token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0ZWJlYzgwNC00MGI0LTQ4MGMtYWUwMC05MGNhMjQzZDAyM2UiLCJhdWQiOlsiZmFzdGFwaS11c2VyczphdXRoIl0sImV4cCI6MTcwOTc4MjU1NH0.2uITkHnltFfbw5nE4OROStOddK8nm7hsbxJ6EhUeg3c');"
     driver.execute_script(script)
     driver.refresh()  # Обновите страницу, чтобы учесть новый токен
     yield driver
