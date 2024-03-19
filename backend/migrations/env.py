@@ -10,6 +10,7 @@ sys.path.append(os.path.join(sys.path[0], "src"))
 from config import DB_HOST, DB_NAME, DB_PASS, DB_PORT, DB_USER
 from auth.models import *
 from tournaments.models import *
+from news.models import Base
 
 
 # this is the Alembic Config object, which provides

@@ -4,7 +4,9 @@ import zipfile
 import io
 from typing import List, Any, Dict
 
-from sqlalchemy import select, text, or_, func
+from pydantic import BaseModel
+from slugify import slugify
+from sqlalchemy import select, text, or_, func, update, exc
 import shutil
 from PIL import Image
 from fastapi import HTTPException
@@ -222,3 +224,18 @@ async def prepare_data_mailing(player, team, opponent_team, result, score, oppon
             )
         }
     return {}
+
+
+async def update_object(data: BaseModel, class_, obj_id: int, if_slug: bool = False, attr_name: str = "name") -> None:
+    async with async_session_maker() as session:
+        update_data = {key: value for key, value in data.model_dump().items() if value is not None}
+        if if_slug:
+            update_data["slug"] = slugify(update_data.get(attr_name), lowercase=True)
+        try:
+            await session.execute(update(class_).where(class_.id == obj_id).values(update_data))
+            await session.commit()
+        except exc.IntegrityError:
+            await session.rollback()
+            update_data["slug"] = f'{update_data["slug"]}-{obj_id}'
+            await session.execute(update(class_).where(class_.id == obj_id).values(update_data))
+            await session.commit()

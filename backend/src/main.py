@@ -23,6 +23,7 @@ from match.router import router as match_data_router
 from matchmaking.router import router as matchmaking_router
 from matchmaking.router_5x5 import router as matchmaking_5x5_router
 from matchmaking.router_5x5_add import router as matchmaking_5x5_router_add
+from news.router import router as news_router
 from pages.router import router as pages_router
 from report.router import router as report_router
 from social.router import router as social_router
@@ -79,6 +80,7 @@ app.include_router(solomatch_router)
 app.include_router(stats_router)
 app.include_router(report_router)
 app.include_router(social_router)
+app.include_router(news_router)
 
 
 app.include_router(

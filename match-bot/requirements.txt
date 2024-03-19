@@ -1,0 +1,5 @@
+https://github.com/aiogram/aiogram/archive/refs/heads/dev-3.x.zip
+python-dotenv
+sqlalchemy
+asyncpg==0.29.0
+redis==4.6.0
