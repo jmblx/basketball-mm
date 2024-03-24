@@ -19,7 +19,6 @@ RUN pip install -r dev.txt
 
 COPY docker/oauth.py /usr/local/lib/python3.11/site-packages/fastapi_users/router/oauth.py
 
-# Copy everything except the venv directory
 COPY / .
 
 RUN chmod a+x docker/*.sh

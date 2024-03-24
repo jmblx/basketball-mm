@@ -12,7 +12,11 @@ from sqlalchemy import insert, select, func, and_, update, exc
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
-from starlette.status import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
+from starlette.status import (
+    HTTP_200_OK,
+    HTTP_400_BAD_REQUEST,
+    HTTP_404_NOT_FOUND,
+)
 
 from auth.base_config import current_user
 from auth.models import User, UserTeam, Team
@@ -21,7 +25,7 @@ from database import get_async_session
 from constants import IMAGES_DIR
 from slugify import slugify
 
-from matchmaking.router import templates
+from matchmaking.router_5x5 import templates
 from teams.schemas import TeamUpdate, GetTeamImages
 from tournaments.models import TeamTournament, Tournament, StatusEvent
 from utils import create_upload_avatar, get_user_attrs, get_object_images
@@ -78,7 +82,11 @@ async def left_team(
     user: User = Depends(current_user),
     session: AsyncSession = Depends(get_async_session),
 ):
-    query = select(Team).where(Team.id == team_id).options(selectinload(Team.players))
+    query = (
+        select(Team)
+        .where(Team.id == team_id)
+        .options(selectinload(Team.players))
+    )
     team = (await session.execute(query)).scalar()
     if team.captain_id == user.id:
         response.status_code = HTTP_400_BAD_REQUEST
@@ -124,8 +132,8 @@ async def register_team_in_tournament(
         .where(TeamTournament.tournament_fk == tournament_id)
     )
 
-    query_get_tournament = (
-        select(Tournament).where(Tournament.id == tournament_id)
+    query_get_tournament = select(Tournament).where(
+        Tournament.id == tournament_id
     )
     result_tournament = await session.execute(query_get_tournament)
     tournament: Tournament = result_tournament.scalar()
@@ -133,12 +141,17 @@ async def register_team_in_tournament(
     query_check_registration = (
         select(func.count())
         .select_from(TeamTournament)
-        .where(and_(TeamTournament.team_fk == team_id, TeamTournament.tournament_fk == tournament_id))
+        .where(
+            and_(
+                TeamTournament.team_fk == team_id,
+                TeamTournament.tournament_fk == tournament_id,
+            )
+        )
     )
     result_check_registration = await session.scalar(query_check_registration)
 
     if tournament.status == StatusEvent.opened:
-        if tournament.number_participants == count_registered+1:
+        if tournament.number_participants == count_registered + 1:
             tournament.status = StatusEvent.pending
         if result_check_registration == 0:
             stmt = insert(TeamTournament).values(
@@ -149,13 +162,16 @@ async def register_team_in_tournament(
             return {"status": "success"}
         else:
             response.status_code = HTTP_400_BAD_REQUEST
-            return {"status": "denied", "details": "team is already registered in the tournament"}
+            return {
+                "status": "denied",
+                "details": "team is already registered in the tournament",
+            }
     else:
         response.status_code = HTTP_400_BAD_REQUEST
         return {"status": "denied", "details": "tournament not OPENED now"}
 
 
-@router.post('/change-search-mode')
+@router.post("/change-search-mode")
 async def change_search_mode(
     team_id: int,
     user: User = Depends(current_user),
@@ -163,8 +179,9 @@ async def change_search_mode(
 ):
     team = await session.get(Team, team_id)
     if team.captain_id == user.id:
-        team.is_captain_only_search = False if team.is_captain_only_search \
-            else True
+        team.is_captain_only_search = (
+            False if team.is_captain_only_search else True
+        )
         await session.commit()
         return "Настройки поиска обновлены"
     else:
@@ -178,11 +195,19 @@ async def team_data(
     session: AsyncSession = Depends(get_async_session),
 ):
     try:
-        team: Team = (await session.execute(
-            select(Team)
-            .options(joinedload(Team.players), joinedload(Team.captain))
-            .where(Team.slug == team_slug)
-        )).unique().scalar_one()
+        team: Team = (
+            (
+                await session.execute(
+                    select(Team)
+                    .options(
+                        joinedload(Team.players), joinedload(Team.captain)
+                    )
+                    .where(Team.slug == team_slug)
+                )
+            )
+            .unique()
+            .scalar_one()
+        )
     except NoResultFound:
         response.status_code = HTTP_404_NOT_FOUND
         return {"result": "page not found"}
@@ -193,7 +218,7 @@ async def team_data(
         "team_captain_nickname": team.captain.nickname,
         "team_captain_id": team.captain.id,
         "number": team.number,  # Количество участников
-        "participants": [await get_user_attrs(user) for user in team.players]
+        "participants": [await get_user_attrs(user) for user in team.players],
     }
 
 
@@ -210,9 +235,7 @@ async def get_image(
 async def render_team_page(
     request: Request,
 ):
-    return templates.TemplateResponse("team_page.html", {
-        "request": request
-    })
+    return templates.TemplateResponse("team_page.html", {"request": request})
 
 
 @router.put("/update/{team_id}")
@@ -226,16 +249,26 @@ async def team_update(
     if not team_update.name and team_update.is_captain_only_search is None:
         response.status_code = HTTP_404_NOT_FOUND
         return {"status": "error with request. Data is null."}
-    update_data = {key: value for key, value in team_update.model_dump().items() if value is not None}
+    update_data = {
+        key: value
+        for key, value in team_update.model_dump().items()
+        if value is not None
+    }
     if "name" in update_data.keys():
         update_data["slug"] = slugify(update_data.get("name"), lowercase=True)
     try:
-        await session.execute(update(Team).where(Team.id == team_id).values(update_data))
+        await session.execute(
+            update(Team).where(Team.id == team_id).values(update_data)
+        )
         await session.commit()
     except exc.IntegrityError:
         await session.rollback()
-        update_data["slug"] = f'{update_data["slug"]}-{random.randint(team_id+1, (team_id*10+1747))}'
-        await session.execute(update(Team).where(Team.id == team_id).values(update_data))
+        update_data["slug"] = (
+            f'{update_data["slug"]}-{random.randint(team_id+1, (team_id*10+1747))}'
+        )
+        await session.execute(
+            update(Team).where(Team.id == team_id).values(update_data)
+        )
         await session.commit()
     return {"status": "success"}
 
@@ -250,11 +283,9 @@ async def check_captainship(
     return {"isCaptain": team.captain_id == user_id}
 
 
-
 @router.get("/teams_images/{team_ids}")
 async def get_teams_images(
     team_ids: str,
 ):
     images = await get_object_images(Team, team_ids)
     print(images)
-

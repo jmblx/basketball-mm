@@ -15,8 +15,12 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 
 from database import get_async_session, Base
-from config import (DB_HOST_TEST, DB_NAME_TEST, DB_PASS_TEST, DB_PORT_TEST,
-                    DB_USER_TEST
+from config import (
+    DB_HOST_TEST,
+    DB_NAME_TEST,
+    DB_PASS_TEST,
+    DB_PORT_TEST,
+    DB_USER_TEST,
 )
 from main import app
 from auth.models import Role
@@ -26,16 +30,21 @@ from tests.testutils import generate_unique_email
 DATABASE_URL_TEST = f"postgresql+asyncpg://{DB_USER_TEST}:{DB_PASS_TEST}@{DB_HOST_TEST}:{DB_PORT_TEST}/{DB_NAME_TEST}"
 
 engine_test = create_async_engine(DATABASE_URL_TEST, poolclass=NullPool)
-async_session_maker = sessionmaker(engine_test, class_=AsyncSession, expire_on_commit=False)
+async_session_maker = sessionmaker(
+    engine_test, class_=AsyncSession, expire_on_commit=False
+)
 Base.metadata.bind = engine_test
+
 
 async def override_get_async_session() -> AsyncGenerator[AsyncSession, None]:
     async with async_session_maker() as session:
         yield session
 
+
 app.dependency_overrides[get_async_session] = override_get_async_session
 
-@pytest.fixture(autouse=True, scope='session')
+
+@pytest.fixture(autouse=True, scope="session")
 async def prepare_database():
     async with engine_test.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
@@ -43,15 +52,18 @@ async def prepare_database():
     async with engine_test.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
 
+
 # SETUP
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def event_loop(request):
     """Create an instance of the default event loop for each test case."""
     loop = asyncio.get_event_loop_policy().new_event_loop()
     yield loop
     loop.close()
 
+
 client = TestClient(app)
+
 
 @pytest.fixture(scope="session")
 async def ac() -> AsyncGenerator[AsyncClient, None]:
@@ -67,29 +79,36 @@ async def add_admin_role():
         session.add(role)
         await session.commit()
 
+
 @pytest.fixture(scope="function")
 async def authenticated_token(ac: AsyncClient, add_admin_role):
     email = generate_unique_email()
-    reg_response = await ac.post("/auth/register", json={
-        "email": email,
-        "password": "string",
-        "is_active": True,
-        "is_superuser": False,
-        "is_verified": False,
-        "nickname": email,
-        "role_id": 1,
-        "pathfile": "string",
-        "phone_number": "+79185717510"
-    })
+    reg_response = await ac.post(
+        "/auth/register",
+        json={
+            "email": email,
+            "password": "string",
+            "is_active": True,
+            "is_superuser": False,
+            "is_verified": False,
+            "nickname": email,
+            "role_id": 1,
+            "pathfile": "string",
+            "phone_number": "+79185717510",
+        },
+    )
     assert reg_response.status_code == 201
-    login_response = await ac.post("/auth/jwt/login", data={
-        "grant_type": None,
-        "username": email,
-        "password": "string",
-        "scope": "",
-        "client_id": None,
-        "client_secret": None
-    })
+    login_response = await ac.post(
+        "/auth/jwt/login",
+        data={
+            "grant_type": None,
+            "username": email,
+            "password": "string",
+            "scope": "",
+            "client_id": None,
+            "client_secret": None,
+        },
+    )
     assert login_response.status_code == 200
     print(login_response.json().get("access_token"))
     return login_response.json().get("access_token")
@@ -98,39 +117,53 @@ async def authenticated_token(ac: AsyncClient, add_admin_role):
 @pytest.fixture(scope="function")
 async def authenticated_data(ac: AsyncClient, add_admin_role):
     email = generate_unique_email()
-    reg_response = await ac.post("/auth/register", json={
-        "email": email,
-        "password": "string",
-        "is_active": True,
-        "is_superuser": False,
-        "is_verified": False,
-        "nickname": email,
-        "role_id": 1,
-        "pathfile": "string",
-        "phone_number": "+79185717510"
-    })
+    reg_response = await ac.post(
+        "/auth/register",
+        json={
+            "email": email,
+            "password": "string",
+            "is_active": True,
+            "is_superuser": False,
+            "is_verified": False,
+            "nickname": email,
+            "role_id": 1,
+            "pathfile": "string",
+            "phone_number": "+79185717510",
+        },
+    )
     assert reg_response.status_code == 201
-    login_response = await ac.post("/auth/jwt/login", data={
-        "grant_type": None,
-        "username": email,
-        "password": "string",
-        "scope": "",
-        "client_id": None,
-        "client_secret": None
-    })
+    login_response = await ac.post(
+        "/auth/jwt/login",
+        data={
+            "grant_type": None,
+            "username": email,
+            "password": "string",
+            "scope": "",
+            "client_id": None,
+            "client_secret": None,
+        },
+    )
     assert login_response.status_code == 200
-    access_token = login_response.json().get('access_token')
-    user_data_response = await ac.get("/profile/", headers={"Authorization": f"Bearer {access_token}"})
-    yield {"access_token": access_token, "user_data": user_data_response.json()}
-    resp_del = await ac.delete(f"/profile/delete/{user_data_response.json().get('id')}")
+    access_token = login_response.json().get("access_token")
+    user_data_response = await ac.get(
+        "/profile/", headers={"Authorization": f"Bearer {access_token}"}
+    )
+    yield {
+        "access_token": access_token,
+        "user_data": user_data_response.json(),
+    }
+    resp_del = await ac.delete(
+        f"/profile/delete/{user_data_response.json().get('id')}"
+    )
 
 
 @pytest.fixture(scope="function")
 async def team_mock(ac: AsyncClient, authenticated_token):
-    response_add_team = await ac.post("/team/add-new-team", json={
-        "name": "test team",
-        "pathfile": "string"
-    }, headers={"Authorization": f"Bearer {authenticated_token}"})
+    response_add_team = await ac.post(
+        "/team/add-new-team",
+        json={"name": "test team", "pathfile": "string"},
+        headers={"Authorization": f"Bearer {authenticated_token}"},
+    )
     print(response_add_team.text, response_add_team.status_code)
     yield response_add_team.json().get("team_id")
     print("s")
@@ -149,6 +182,7 @@ async def driver1(authenticated_token):
     yield driver
     driver.quit()
 
+
 # Фикстура для второго драйвера
 @pytest.fixture(scope="function")
 async def driver2(authenticated_token):
@@ -162,4 +196,3 @@ async def driver2(authenticated_token):
     driver.refresh()  # Обновите страницу, чтобы учесть новый токен
     yield driver
     driver.quit()
-

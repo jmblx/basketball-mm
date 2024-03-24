@@ -1,6 +1,9 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, UUID4
 
-from solomatch.schemas import PlayerMatchResult
+
+class PlayerMatchResult(BaseModel):
+    id: str
+    score: int
 
 
 class TeamResult(BaseModel):
@@ -11,3 +14,17 @@ class TeamResult(BaseModel):
 class SetMatchResultRequest5x5(BaseModel):
     team1: TeamResult
     team2: TeamResult
+
+
+class SetSoloMatchResult(BaseModel):
+    first_player_result: PlayerMatchResult
+    second_player_result: PlayerMatchResult
+
+
+class Message(BaseModel):
+    match_result: str
+    solo_rating_change: int
+    current_solo_rating: int
+    opponent_nickname: str
+    telegram_id: int
+

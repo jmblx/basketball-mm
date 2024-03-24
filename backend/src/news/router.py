@@ -18,14 +18,16 @@ router = fastapi.APIRouter(prefix="/news", tags=["news"])
 
 
 @router.post("/add")
-async def add_news(data: AddNews, session: AsyncSession = Depends(get_async_session)):
+async def add_news(
+    data: AddNews, session: AsyncSession = Depends(get_async_session)
+):
     news_data = data.model_dump()
     original_slug = slugify(news_data["title"], lowercase=True)
     news_data["slug"] = original_slug
     suffix = 0
     while True:
         if suffix > 0:
-            news_data["slug"] = f'{original_slug}-{suffix}'
+            news_data["slug"] = f"{original_slug}-{suffix}"
         try:
             stmt = insert(News).values(news_data)
             await session.execute(stmt)
@@ -54,7 +56,9 @@ async def update_news(
     #     update_data["slug"] = f'{update_data["slug"]}-{news_id}'
     #     await session.execute(update(News).where(News.id == news_id).values(update_data))
     #     await session.commit()
-    await update_object(data, class_=News, obj_id=news_id, if_slug=True, attr_name="title")
+    await update_object(
+        data, class_=News, obj_id=news_id, if_slug=True, attr_name="title"
+    )
     return {"status": "successful update"}
 
 
@@ -75,9 +79,7 @@ async def delete_news(
     news_id: int,
     session: AsyncSession = Depends(get_async_session),
 ):
-    stmt = (
-        delete(News).where(News.id == news_id)
-    )
+    stmt = delete(News).where(News.id == news_id)
     await session.execute(stmt)
     await session.commit()
     return {"status": "successful delete"}
@@ -100,5 +102,11 @@ async def add_category(
     data: UpdateCategory,
     session: AsyncSession = Depends(get_async_session),
 ):
-    await update_object(data, class_=NewsCategory, obj_id=cat_id, if_slug=True, attr_name="name")
+    await update_object(
+        data,
+        class_=NewsCategory,
+        obj_id=cat_id,
+        if_slug=True,
+        attr_name="name",
+    )
     return {"status": "successful update"}

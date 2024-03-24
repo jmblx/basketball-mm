@@ -6,7 +6,13 @@ from sqlalchemy import insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import async_session_maker
-from tournaments.models import Tournament, Match, TeamTournament, TeamMatch, StatusEvent
+from tournaments.models import (
+    Tournament,
+    Match,
+    TeamTournament,
+    TeamMatch,
+    StatusEvent,
+)
 
 
 async def fill_tournament(tournament_id: int, session: AsyncSession):
@@ -26,7 +32,7 @@ async def fill_tournament(tournament_id: int, session: AsyncSession):
             hour=hour, minute=minute
         ) + datetime.timedelta(days=day_offset)
 
-    for stage in range(1, tournament.number_stages+1):
+    for stage in range(1, tournament.number_stages + 1):
         for match in range(int(tournament.number_participants / stage / 2)):
             cur_match_start_date = create_datetime(
                 start_tournament_day.hour,
@@ -80,14 +86,14 @@ async def fill_tournament_teams(
                 if stage == 1:
                     team_match_data = {
                         "match_fk": all_matches[match_counter // 2],
-                        "team_fk": all_teams[team_counter]
+                        "team_fk": all_teams[team_counter],
                     }
                     team_counter += 1
                     match_counter += 1
                 else:
                     team_match_data = {
                         "match_fk": all_matches[match_counter // 2],
-                        "team_fk": None
+                        "team_fk": None,
                     }
                     match_counter += 1
                 arr_team_match_data.append(team_match_data)
@@ -104,10 +110,7 @@ async def get_data(
     is_scalar: bool = False,
 ):
     async with async_session_maker() as session:
-        stmt = (
-            select(class_)
-            .where(filter)
-        )
+        stmt = select(class_).where(filter)
         if is_scalar:
             res_query = await session.execute(stmt)
             res = res_query.scalar()
@@ -118,9 +121,7 @@ async def get_data(
     return res
 
 
-async def get_tournaments(
-    status: StatusEvent
-):
+async def get_tournaments(status: StatusEvent):
     async with async_session_maker() as session:
         query = select(Tournament).where(Tournament.status == status)
         res = (await session.execute(query)).all()

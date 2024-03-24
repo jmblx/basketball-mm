@@ -17,10 +17,13 @@ intpk = Annotated[int, mapped_column(primary_key=True, autoincrement=True)]
 # intfk = Annotated[int, mapped_column(ForeignKey(
 #   "match.id", primary_key=True)
 # )]
-default_int = Annotated[int, mapped_column(
+default_int = Annotated[
+    int,
+    mapped_column(
         nullable=True,
         default=0,
-    )]
+    ),
+]
 
 scores_mm = Annotated[dict, mapped_column(JSON, nullable=True)]
 

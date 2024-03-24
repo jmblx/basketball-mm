@@ -17,7 +17,7 @@ from auth.models import User, Role, Team, UserTeam
 from auth.schemas import RoleSchema
 from constants import IMAGES_DIR
 from database import get_async_session
-from matchmaking.router import templates
+from matchmaking.router_5x5 import templates
 from user_data.schemas import LinkTG
 from utils import create_upload_avatar, get_user_attrs, team_to_dict
 
@@ -36,14 +36,16 @@ async def get_chat_page(request: Request):
     return templates.TemplateResponse("img.html", {"request": request})
 
 
-@router.post("/uploadfile/user/avatar")
+@router.post("/uploadfile/avatar/{user_id}")
 async def upload_user_avatar(
     file: UploadFile,
-    user: User = Depends(current_user)
+    # user: User = Depends(current_user)
+    user_id: UUID,
 ):
     class_ = User
     user_avatar_dir = os.path.join(IMAGES_DIR, "user")
-    res = await create_upload_avatar(user.id, file, class_, user_avatar_dir)
+    res = await create_upload_avatar(user_id, file, class_, user_avatar_dir)
+    # res = await create_upload_avatar(user.id, file, class_, user_avatar_dir)
     return res
 
 
@@ -73,11 +75,21 @@ async def get_user_team(
     user_id: UUID,
     session: AsyncSession = Depends(get_async_session),
 ):
-    user_with_teams: User = ((await session.execute(
-        select(User).options(joinedload(User.teams))
-        .filter(User.id == user_id)))
-        .unique().first())[0]
-    result = {f"team{num}": await team_to_dict(team) for num, team in enumerate(user_with_teams.teams)}
+    user_with_teams: User = (
+        (
+            await session.execute(
+                select(User)
+                .options(joinedload(User.teams))
+                .filter(User.id == user_id)
+            )
+        )
+        .unique()
+        .first()
+    )[0]
+    result = {
+        f"team{num}": await team_to_dict(team)
+        for num, team in enumerate(user_with_teams.teams)
+    }
     return result
 
 
@@ -86,34 +98,46 @@ async def delete_user(
     user_id: UUID,
     session: AsyncSession = Depends(get_async_session),
 ):
-    users_teams = (await session.execute(
-        select(Team).options(selectinload(Team.players)).where(Team.captain_id == user_id)
-    )).scalars().all()
+    users_teams = (
+        (
+            await session.execute(
+                select(Team)
+                .options(selectinload(Team.players))
+                .where(Team.captain_id == user_id)
+            )
+        )
+        .scalars()
+        .all()
+    )
     await session.execute(delete(UserTeam).where(UserTeam.user_id == user_id))
     for team in users_teams:
         print(team.name)
         if len(team.players) > 0:
             # Исключаем удаляемого капитана из списка возможных новых капитанов
-            possible_new_captains = [player for player in team.players if player.id != user_id]
+            possible_new_captains = [
+                player for player in team.players if player.id != user_id
+            ]
             if possible_new_captains:
                 # Выбираем случайного нового капитана
                 new_captain = random.choice(possible_new_captains)
                 # Обновляем команду с новым капитаном
                 await session.execute(
-                    update(Team).where(Team.id == team.id).values(captain_id=new_captain.id)
+                    update(Team)
+                    .where(Team.id == team.id)
+                    .values(captain_id=new_captain.id)
                 )
             else:
                 # Если в команде не осталось других участников, можно установить captain_id в None или предпринять другие действия
                 # await session.execute(
                 #     update(Team).where(Team.id == team.id).values(captain_id=None, number=team.number-1)
                 # )
-                await session.execute(
-                    delete(Team).where(Team.id == team.id)
-                )
+                await session.execute(delete(Team).where(Team.id == team.id))
     await session.execute(delete(User).where(User.id == user_id))
     await session.commit()
 
-    return {"message": "User deleted and new captains assigned where applicable"}
+    return {
+        "message": "User deleted and new captains assigned where applicable"
+    }
 
 
 @router.put("/link/tg/")
@@ -124,11 +148,17 @@ async def link_tg(
 ):
     try:
         stmt = (
-            update(User).where(User.email == data.user_email).values({"tg_id": data.tg_id})
+            update(User)
+            .where(User.email == data.user_email)
+            .values({"tg_id": data.tg_id})
         )
         await session.execute(stmt)
         await session.commit()
-        user = (await session.execute(select(User.id).where(User.email == data.user_email))).scalar()
+        user = (
+            await session.execute(
+                select(User.id).where(User.email == data.user_email)
+            )
+        ).scalar()
         return {"response": user}
     except IntegrityError:
         response.status_code = HTTP_404_NOT_FOUND

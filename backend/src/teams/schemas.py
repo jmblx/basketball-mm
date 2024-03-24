@@ -12,5 +12,6 @@ class TeamUpdate(BaseModel):
 #     user_id: int,
 #     team_id
 
+
 class GetTeamImages(BaseModel):
     team_ids: List

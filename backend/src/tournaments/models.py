@@ -10,6 +10,7 @@ from auth.models import Team, User
 from database import Base
 from my_type_notation import intpk, added_at, scores_mm, team_fk
 
+
 class StatusEvent(enum.Enum):
     opened = "OPENED"
     pending = "PENDING"
@@ -31,13 +32,11 @@ class Tournament(Base):
     status: Mapped[StatusEvent]
     placemark: Mapped[str]
     number_participants: Mapped[int]
-    number_stages: Mapped[int] = mapped_column(
-        default=default_number_stages
+    number_stages: Mapped[int] = mapped_column(default=default_number_stages)
+    winner_id: Mapped[int] = mapped_column(
+        ForeignKey("team.id"), nullable=True
     )
-    winner_id: Mapped[int] = mapped_column(ForeignKey("team.id"), nullable=True)
-    start_date: Mapped[added_at] = mapped_column(
-        nullable=True
-    )
+    start_date: Mapped[added_at] = mapped_column(nullable=True)
     end_date: Mapped[added_at]
     teams: Mapped[List["Team"]] = relationship(
         back_populates="tournament",
@@ -96,10 +95,12 @@ class SoloMatch(Base, ParentMatch):
         "User",
         back_populates="solomatches",
         uselist=True,
-        secondary="user_solomatch"
+        secondary="user_solomatch",
     )
     scores: Mapped[scores_mm]
-    winner_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=True)
+    winner_id: Mapped[int] = mapped_column(
+        ForeignKey("user.id"), nullable=True
+    )
     loser_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=True)
 
 
@@ -110,12 +111,13 @@ class TeamMatchBase:
 
 
 class TeamMatch(Base, TeamMatchBase):
-    __tablename__ ="team_match"
+    __tablename__ = "team_match"
 
     match_fk: Mapped[int] = mapped_column(ForeignKey("match.id"))
 
+
 class TeamMatch5x5(Base, TeamMatchBase):
-    __tablename__ ="team_match_5x5"
+    __tablename__ = "team_match_5x5"
 
     match_fk: Mapped[int] = mapped_column(ForeignKey("match_5x5.id"))
 

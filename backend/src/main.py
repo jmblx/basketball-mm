@@ -1,10 +1,11 @@
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from redis import asyncio as aioredis
-from sqlalchemy import text
 from starlette_exporter import handle_metrics
 from starlette_exporter import PrometheusMiddleware
 
@@ -12,22 +13,23 @@ from starlette_exporter import PrometheusMiddleware
 
 from auth.base_config import (
     auth_backend,
-    fastapi_users, google_oauth_client,
+    fastapi_users,
+    google_oauth_client,
 )
 from auth.schemas import UserCreate, UserRead, UserUpdate
+
 # from config import SENTRY_URL, SECRET_AUTH
 from auth.custom_auth_router import router as custom_auth_router
 from config import REDIS_HOST, REDIS_PORT, SECRET_AUTH
-from database import async_session_maker
 from match.router import router as match_data_router
-from matchmaking.router import router as matchmaking_router
+from matchmaking.router_solo import router as matchmaking_solo_router
+from matchmaking.router_solo_add import router as solomatch_router_add
 from matchmaking.router_5x5 import router as matchmaking_5x5_router
 from matchmaking.router_5x5_add import router as matchmaking_5x5_router_add
 from news.router import router as news_router
 from pages.router import router as pages_router
 from report.router import router as report_router
 from social.router import router as social_router
-from solomatch.router import router as solomatch_router
 from stats.router import router as stats_router
 from teams.router import router as teams_router
 from tournaments.router import router as tournaments_router
@@ -72,11 +74,11 @@ app.include_router(teams_router)
 app.include_router(tournaments_router)
 app.include_router(user_data_router)
 app.include_router(match_data_router)
-app.include_router(matchmaking_router)
+app.include_router(matchmaking_solo_router)
 app.include_router(matchmaking_5x5_router)
 app.include_router(matchmaking_5x5_router_add)
 app.include_router(pages_router)
-app.include_router(solomatch_router)
+app.include_router(solomatch_router_add)
 app.include_router(stats_router)
 app.include_router(report_router)
 app.include_router(social_router)
@@ -88,7 +90,7 @@ app.include_router(
         google_oauth_client,
         auth_backend,
         SECRET_AUTH,
-        # redirect_url="http://127.0.0.1:8000/",
+        redirect_url=f"http://localhost:{os.getenv('PORT')}/auth/google/callback",
         is_verified_by_default=True,
     ),
     prefix="/auth/google",
@@ -126,5 +128,9 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.on_event("startup")
 async def startup_event():
-    redis = aioredis.from_url(f"redis://{REDIS_HOST}:{REDIS_PORT}", encoding="utf8", decode_responses=True)
+    redis = aioredis.from_url(
+        f"redis://{REDIS_HOST}:{REDIS_PORT}",
+        encoding="utf8",
+        decode_responses=True,
+    )
     FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")

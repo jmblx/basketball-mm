@@ -15,8 +15,12 @@ class News(Base):
     title: Mapped[str] = mapped_column(nullable=False, type_=VARCHAR(30))
     text: Mapped[str] = mapped_column(type_=VARCHAR(length=2000))
     pathfile: Mapped[str] = mapped_column(nullable=True)
-    slug: Mapped[str] = mapped_column(unique=True, type_=VARCHAR(30), nullable=True)
-    category: Mapped["NewsCategory"] = relationship(back_populates="news", uselist=False)
+    slug: Mapped[str] = mapped_column(
+        unique=True, type_=VARCHAR(30), nullable=True
+    )
+    category: Mapped["NewsCategory"] = relationship(
+        back_populates="news", uselist=False
+    )
     cat_id: Mapped[int] = mapped_column(ForeignKey("news_category.id"))
     # author: Mapped["auth_models.User"] = relationship(back_populates="news", uselist=False)
     # author_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
@@ -28,4 +32,6 @@ class NewsCategory(Base):
     id: Mapped[intpk]
     name: Mapped[str] = mapped_column(nullable=False)
     slug: Mapped[str] = mapped_column(nullable=True)
-    news: Mapped[List["News"]] = relationship(back_populates="category", uselist=True)
+    news: Mapped[List["News"]] = relationship(
+        back_populates="category", uselist=True
+    )

@@ -7,13 +7,22 @@ from fastapi_cache.decorator import cache
 from sqlalchemy import insert, select, update, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
-from starlette.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST
+from starlette.status import (
+    HTTP_200_OK,
+    HTTP_201_CREATED,
+    HTTP_400_BAD_REQUEST,
+)
 
 from constants import IMAGES_DIR
 from database import get_async_session
 from tournaments.models import Tournament, Match, TeamMatch, StatusEvent
 from tournaments.schemas import TournamentSchema
-from tournaments.utils import fill_tournament, get_data, fill_tournament_teams, get_tournaments
+from tournaments.utils import (
+    fill_tournament,
+    get_data,
+    fill_tournament_teams,
+    get_tournaments,
+)
 from auth.models import User
 from utils import create_upload_avatar
 
@@ -27,7 +36,9 @@ async def upload_tournament_avatar(
 ):
     class_ = Tournament
     tournament_avatar_dir = os.path.join(IMAGES_DIR, "tournament")
-    res = await create_upload_avatar(tournament_id, file, class_, tournament_avatar_dir)
+    res = await create_upload_avatar(
+        tournament_id, file, class_, tournament_avatar_dir
+    )
     return res
 
 
@@ -73,12 +84,12 @@ async def add_new_tournament(
 async def start_tournament(
     tournament_id: int,
     response: Response,
-    session: AsyncSession = Depends(get_async_session)
+    session: AsyncSession = Depends(get_async_session),
 ):
     tournament_status = await get_data(
         class_=Tournament.status,
         is_scalar=True,
-        filter=Tournament.id == tournament_id
+        filter=Tournament.id == tournament_id,
     )
     if tournament_status == StatusEvent.pending:
         await fill_tournament_teams(tournament_id)
@@ -109,26 +120,26 @@ async def set_match_result(
     )
     await session.execute(stmt_update_res)
     match: Match = await get_data(Match, Match.id == match_id, is_scalar=True)
-    tournament = await session.get(Tournament, tournament_id, options=selectinload(Tournament.matches))
+    tournament = await session.get(
+        Tournament, tournament_id, options=selectinload(Tournament.matches)
+    )
 
     next_stage = match.stage + 1
     new_number_in_stage = match.number_in_stage // 2
     new_match_id = await get_data(
         Match.id,
         and_(
-                Match.number_in_stage == new_number_in_stage,
-                Match.stage == next_stage,
-                Match.tournament_id == tournament.id
-            ),
+            Match.number_in_stage == new_number_in_stage,
+            Match.stage == next_stage,
+            Match.tournament_id == tournament.id,
+        ),
         is_scalar=True,
     )
 
     sub_stmt = (
         select(TeamMatch.id)
-        .where(and_(
-            TeamMatch.match_fk == new_match_id,
-            TeamMatch.team_fk == None
-        )
+        .where(
+            and_(TeamMatch.match_fk == new_match_id, TeamMatch.team_fk == None)
         )
         .limit(1)
     )

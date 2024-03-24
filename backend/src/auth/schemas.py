@@ -5,6 +5,7 @@ from fastapi_users import schemas
 from pydantic import BaseModel, EmailStr
 from typing_extensions import Any, Dict
 
+
 class UserRead(schemas.BaseUser[uuid.UUID]):
 
     nickname: str

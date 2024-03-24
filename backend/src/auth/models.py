@@ -44,7 +44,9 @@ class User(SQLAlchemyBaseUserTableUUID, Matchmaking, Base):
     def default_nickname(context):
         return str(context.get_current_parameters()["email"].split("@")[0])
 
-    nickname: Mapped[str] = mapped_column(default=default_nickname, unique=True)
+    nickname: Mapped[str] = mapped_column(
+        default=default_nickname, unique=True
+    )
     role_id: Mapped[int] = mapped_column(ForeignKey("role.id"), default=1)
     roles: Mapped[list["Role"]] = relationship(
         back_populates="user", uselist=True
@@ -73,7 +75,7 @@ class User(SQLAlchemyBaseUserTableUUID, Matchmaking, Base):
         "SoloMatch",
         back_populates="players",
         uselist=True,
-        secondary="user_solomatch"
+        secondary="user_solomatch",
     )
     solomatch_wins: Mapped[default_int]
     solomatch_loses: Mapped[default_int]
@@ -85,8 +87,10 @@ class User(SQLAlchemyBaseUserTableUUID, Matchmaking, Base):
     )
 
 
-create_index = DDL('CREATE INDEX search_vector_index ON "user" USING GIN(search_vector);')
-event.listen(User.__table__, 'after_create', create_index)
+create_index = DDL(
+    'CREATE INDEX search_vector_index ON "user" USING GIN(search_vector);'
+)
+event.listen(User.__table__, "after_create", create_index)
 
 
 class Role(Base):
@@ -120,16 +124,13 @@ class Team(Matchmaking, Base):
         secondary="team_tournament",
     )
     matches = relationship(
-        "Match",
-        back_populates="teams",
-        uselist=True,
-        secondary="team_match"
+        "Match", back_populates="teams", uselist=True, secondary="team_match"
     )
     matches_5x5 = relationship(
         "Match5x5",
         back_populates="teams",
         uselist=True,
-        secondary="team_match_5x5"
+        secondary="team_match_5x5",
     )
     pathfile: Mapped[str]
 

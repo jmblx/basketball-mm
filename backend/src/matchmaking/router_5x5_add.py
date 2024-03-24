@@ -12,7 +12,7 @@ from matchmaking.schemas import SetMatchResultRequest5x5
 from producer import get_producer, AIOWebProducer
 from redis_config import get_redis
 from tournaments.models import Match5x5
-from utils import prepare_data_mailing
+from utils import prepare_data_mailing, get_match_data
 
 router = APIRouter(prefix="", tags=["matchmaking"])
 
@@ -23,58 +23,112 @@ async def set_match5x5_result(
     match_result: SetMatchResultRequest5x5,
     session: AsyncSession = Depends(get_async_session),
     redis=Depends(get_redis),
-    producer: AIOWebProducer = Depends(get_producer)
+    producer: AIOWebProducer = Depends(get_producer),
 ):
     match = await session.get(Match5x5, match_id)
     match.end_date = datetime.datetime.utcnow()
     await session.merge(match)
 
-    total_score_team1 = sum(player.score for player
-                            in match_result.team1.result.values())
-    total_score_team2 = sum(player.score for player
-                            in match_result.team2.result.values())
-    winner_score = total_score_team1 if total_score_team1 > total_score_team2 else total_score_team2
-    loser_score = total_score_team2 if total_score_team1 > total_score_team2 else total_score_team1
+    total_score_team1 = sum(
+        player.score for player in match_result.team1.result.values()
+    )
+    total_score_team2 = sum(
+        player.score for player in match_result.team2.result.values()
+    )
+    winner_score = (
+        total_score_team1
+        if total_score_team1 > total_score_team2
+        else total_score_team2
+    )
+    loser_score = (
+        total_score_team2
+        if total_score_team1 > total_score_team2
+        else total_score_team1
+    )
 
-    winner_id = match_result.team1.team_id\
-        if total_score_team1 > total_score_team2 else total_score_team2
-    loser_id = match_result.team1.team_id if winner_id == \
-        match_result.team2.team_id else match_result.team2.team_id
+    winner_id = (
+        match_result.team1.team_id
+        if total_score_team1 > total_score_team2
+        else match_result.team2.team_id
+    )
+    loser_id = (
+        match_result.team1.team_id
+        if winner_id == match_result.team2.team_id
+        else match_result.team2.team_id
+    )
+
+    winning_team = (
+        (
+            await session.execute(
+                select(Team)
+                .options(joinedload(Team.players))
+                .where(Team.id == winner_id)
+            )
+        )
+        .unique()
+        .scalar_one()
+    )
+
+    losing_team = (
+        (
+            await session.execute(
+                select(Team)
+                .options(joinedload(Team.players))
+                .where(Team.id == loser_id)
+            )
+        )
+        .unique()
+        .scalar_one()
+    )
+    match_update = dict(match_result.model_dump())
+    match_update["first_team_score"] = total_score_team1
+    match_update["second_team_score"] = total_score_team2
 
     await session.execute(
         update(Match5x5)
         .where(Match5x5.id == match_id)
-        .values(winner_id=winner_id)
+        .values(winner_id=winner_id, scores=match_update, loser_id=loser_id)
     )
-
-    winning_team = (await session.execute(
-        select(Team).options(joinedload(Team.players)).where(Team.id == winner_id)
-    )).unique().scalar_one()
-
-    losing_team = (await session.execute(
-        select(Team).options(joinedload(Team.players)).where(Team.id == loser_id)
-    )).unique().scalar_one()
+    await session.commit()
 
     data_mailing = dict()
 
     for player in winning_team.players:
-        player_data = await prepare_data_mailing(player, winning_team, losing_team, "win", winner_score, loser_score,
-                                                 redis)
+        player_data = await prepare_data_mailing(
+            player,
+            winning_team,
+            losing_team,
+            "win",
+            winner_score,
+            loser_score,
+            redis,
+        )
         data_mailing.update(player_data)
 
         player.match5x5_wins += 1
         player.match5x5_played += 1
-        player.match5x5_winrate = player.match5x5_wins / player.match5x5_played * 100
+        player.match5x5_winrate = (
+            player.match5x5_wins / player.match5x5_played * 100
+        )
         await session.merge(player)
 
     for player in losing_team.players:
-        player_data = await prepare_data_mailing(player, losing_team, winning_team, "lose", loser_score, winner_score,
-                                                 redis)
+        player_data = await prepare_data_mailing(
+            player,
+            losing_team,
+            winning_team,
+            "lose",
+            loser_score,
+            winner_score,
+            redis,
+        )
         data_mailing.update(player_data)
 
         player.match5x5_loses += 1
         player.match5x5_played += 1
-        player.match5x5_winrate = player.match5x5_wins / player.match5x5_played * 100
+        player.match5x5_winrate = (
+            player.match5x5_wins / player.match5x5_played * 100
+        )
         await session.merge(player)
 
     print(data_mailing)
@@ -84,3 +138,9 @@ async def set_match5x5_result(
 
     await session.commit()
     return {"details": data_mailing}
+
+
+@router.get("/5x5/match-result/{match_id}")
+async def get_match_result(match_id: int):
+    data = await get_match_data(Match5x5, match_id)
+    return {"data": data}

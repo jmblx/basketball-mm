@@ -1,4 +1,5 @@
 import json
+import os
 from typing import Dict, List, Optional, Tuple, Type
 
 import jwt
@@ -9,7 +10,11 @@ from httpx_oauth.oauth2 import BaseOAuth2, OAuth2Token
 from pydantic import BaseModel
 
 from fastapi_users import models, schemas
-from fastapi_users.authentication import AuthenticationBackend, Authenticator, Strategy
+from fastapi_users.authentication import (
+    AuthenticationBackend,
+    Authenticator,
+    Strategy,
+)
 from fastapi_users.exceptions import UserAlreadyExists
 from fastapi_users.jwt import SecretType, decode_jwt, generate_jwt
 from fastapi_users.manager import BaseUserManager, UserManagerDependency
@@ -95,7 +100,9 @@ def get_oauth_router(
                             },
                             ErrorCode.LOGIN_BAD_CREDENTIALS: {
                                 "summary": "User is inactive.",
-                                "value": {"detail": ErrorCode.LOGIN_BAD_CREDENTIALS},
+                                "value": {
+                                    "detail": ErrorCode.LOGIN_BAD_CREDENTIALS
+                                },
                             },
                         }
                     }
@@ -108,8 +115,12 @@ def get_oauth_router(
         access_token_state: Tuple[OAuth2Token, str] = Depends(
             oauth2_authorize_callback
         ),
-        user_manager: BaseUserManager[models.UP, models.ID] = Depends(get_user_manager),
-        strategy: Strategy[models.UP, models.ID] = Depends(backend.get_strategy),
+        user_manager: BaseUserManager[models.UP, models.ID] = Depends(
+            get_user_manager
+        ),
+        strategy: Strategy[models.UP, models.ID] = Depends(
+            backend.get_strategy
+        ),
     ):
         token, state = access_token_state
         account_id, account_email = await oauth_client.get_id_email(
@@ -151,10 +162,13 @@ def get_oauth_router(
                 detail=ErrorCode.LOGIN_BAD_CREDENTIALS,
             )
         from auth.models import User
+
         async with async_session_maker() as session:
             custom_user = await session.get(User, user.id)
             custom_user.is_email_confirmed = True
-            custom_user.search_vector = func.to_tsvector('russian', custom_user.nickname)
+            custom_user.search_vector = func.to_tsvector(
+                "russian", custom_user.nickname
+            )
             session.add(custom_user)
             await session.commit()
         # Authenticate
@@ -168,7 +182,7 @@ def get_oauth_router(
             <head>
                 <script>
                     localStorage.setItem('auth_token', '{token}');
-                    window.location.href = `http://localhost:8000/pages/continue_google_auth`;
+                    window.location.href = `http://localhost:{os.getenv("PORT")}/pages/continue_google_auth`;
                 </script>
             </head>
             <body>
@@ -262,7 +276,9 @@ def get_oauth_associate_router(
         access_token_state: Tuple[OAuth2Token, str] = Depends(
             oauth2_authorize_callback
         ),
-        user_manager: BaseUserManager[models.UP, models.ID] = Depends(get_user_manager),
+        user_manager: BaseUserManager[models.UP, models.ID] = Depends(
+            get_user_manager
+        ),
     ):
         token, state = access_token_state
         account_id, account_email = await oauth_client.get_id_email(
@@ -276,7 +292,9 @@ def get_oauth_associate_router(
             )
 
         try:
-            state_data = decode_jwt(state, state_secret, [STATE_TOKEN_AUDIENCE])
+            state_data = decode_jwt(
+                state, state_secret, [STATE_TOKEN_AUDIENCE]
+            )
         except jwt.DecodeError:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
 
