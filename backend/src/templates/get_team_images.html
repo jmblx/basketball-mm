@@ -15,7 +15,7 @@
         async function fetchAndDisplayImages() {
             const teamIds = [2, 3]; // Список идентификаторов команд
             const queryString = `/${teamIds.join(',')}`; // Формируем строку query параметров
-            const response = await fetch(`http://localhost:8000/team/teams_images${queryString}`, {
+            const response = await fetch(`http://localhost:8082/team/teams_images${queryString}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'

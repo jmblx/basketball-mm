@@ -1,7 +1,7 @@
 async function registerAndLogin(email, password, name) {
   try {
     // Попытка регистрации
-    const registerResponse = await fetch('http://localhost:8000/auth/register', {
+    const registerResponse = await fetch('http://localhost:8082/auth/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -23,7 +23,7 @@ async function registerAndLogin(email, password, name) {
     }
 
     // Попытка входа после успешной регистрации
-    const loginResponse = await fetch('http://localhost:8000/auth/jwt/login', {
+    const loginResponse = await fetch('http://localhost:8082/auth/jwt/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
@@ -65,7 +65,7 @@ document.getElementById('registrationForm').addEventListener('submit', async (ev
 
 async function fetchGoogleAuthUrl() {
   try {
-    const response = await fetch('http://localhost:8000/auth/google/authorize');
+    const response = await fetch('http://localhost:8082/auth/google/authorize');
     if (!response.ok) {
       throw new Error(`Ошибка запроса: ${response.statusText}`);
     }

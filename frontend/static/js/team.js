@@ -10,7 +10,7 @@ var teamSlug = new URL(window.location.href).pathname.split("/").pop();
 
         async function getUserData() {
             const token = localStorage.getItem("auth_token");
-            const response = await fetch('http://localhost:8000/profile/', {
+            const response = await fetch('http://localhost:8082/profile/', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -108,7 +108,7 @@ var teamSlug = new URL(window.location.href).pathname.split("/").pop();
 
 
         async function getTeamData() {
-            const response = await fetch(`http://localhost:8000/team/data/${teamSlug}`);
+            const response = await fetch(`http://localhost:8082/team/data/${teamSlug}`);
             if (response.ok) {
                 data = await response.json(); // Получаем данные
                 teamData = data;
@@ -137,7 +137,7 @@ var teamSlug = new URL(window.location.href).pathname.split("/").pop();
         }
 
         async function getTeamImage() {
-            fetch(`http://localhost:8000/team/image/${teamId}`)
+            fetch(`http://localhost:8082/team/image/${teamId}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Сетевой запрос не удался');
@@ -156,7 +156,7 @@ var teamSlug = new URL(window.location.href).pathname.split("/").pop();
 
         async function joinTeam() {
             const token = localStorage.getItem("auth_token");
-            const response = await fetch(`http://localhost:8000/team/join-team?team_id=${teamId}`, {
+            const response = await fetch(`http://localhost:8082/team/join-team?team_id=${teamId}`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -205,7 +205,7 @@ var teamSlug = new URL(window.location.href).pathname.split("/").pop();
             }
             console.log(changes)
             const token = localStorage.getItem("auth_token");
-            const response = await fetch(`http://localhost:8000/team/update/${teamId}`, {
+            const response = await fetch(`http://localhost:8082/team/update/${teamId}`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -255,7 +255,7 @@ var teamSlug = new URL(window.location.href).pathname.split("/").pop();
 
         async function leaveTeam() {
             const token = localStorage.getItem("auth_token");
-            const response = await fetch(`http://localhost:8000/team/leave-team?team_id=${teamId}`, {
+            const response = await fetch(`http://localhost:8082/team/leave-team?team_id=${teamId}`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,

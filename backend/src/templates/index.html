@@ -33,7 +33,7 @@
         <div>
         <h1><span style="color: orange;font-size: 100px;">BASKET PLACE</span></h1>
         <p><span style="color: white;font-size: large;"><strong>Добро пожаловать в Bascet Place!<br>Здесь вы проводете время на улице нахуй идите все ебаные уёбки</br>Получайте анальное удовольствие гады и шлюхи!<br>ПИДОРАСЫ!</br></strong></span></p>
-        <button onclick="window.location = ('http://localhost:8000/custom/auth-page')" class="button">Войти</button>
+        <button onclick="window.location = ('http://localhost:8082/custom/auth-page')" class="button">Войти</button>
         </div>
     </div>
 </div>
@@ -91,12 +91,12 @@
         }
 
         async function searchUsers(searchText) {
-            const response = await fetch(`http://127.0.0.1:8000/social/find-user?nickname=${searchText}`);
+            const response = await fetch(`http://127.0.0.82/social/find-user?nickname=${searchText}`);
             return await response.json();
         }
 
         async function searchTeams(searchText) {
-            const response = await fetch(`http://127.0.0.1:8000/social/find-team?team_name=${searchText}`);
+            const response = await fetch(`http://127.0.0.1:8082/social/find-team?team_name=${searchText}`);
             return await response.json();
         }
 
@@ -104,7 +104,7 @@
             const userResultsDiv = document.getElementById('user-search-results');
             if (Array.isArray(nicknames) && nicknames.length > 0) {
                 userResultsDiv.innerHTML = nicknames.map(nickname =>
-                    `<a href="http://localhost:8000/user/${nickname}">${nickname}</a>`
+                    `<a href="http://localhost:8082/user/${nickname}">${nickname}</a>`
                 ).join('<br>');
             } else {
                 userResultsDiv.innerHTML = 'Пользователь не найден';
@@ -115,7 +115,7 @@
             const teamResultsDiv = document.getElementById('team-search-results');
             if (Array.isArray(teams) && teams.length > 0) {
                 teamResultsDiv.innerHTML = teams.map(team =>
-                    `<a href="http://localhost:8000/team/page/${team.slug}">${team.name}</a>`
+                    `<a href="http://localhost:8082/team/page/${team.slug}">${team.name}</a>`
                 ).join('<br>');
             } else {
                 teamResultsDiv.innerHTML = 'Команды не найдены';
@@ -148,13 +148,13 @@
 </script>
 <script>
     async function getUserData() {
-    const response = await fetch('http://127.0.0.1:8000/stats/top5-users-solo');
+    const response = await fetch('http://127.0.0.1:8082/stats/top5-users-solo');
     const users = await response.json();
     updateCardsWithUserData(users);
 }
 
 async function getUserData() {
-    const response = await fetch('http://127.0.0.1:8000/stats/top5-users-solo');
+    const response = await fetch('http://127.0.0.1:8082/stats/top5-users-solo');
     const users = await response.json();
 
     // Сортируем пользователей так, чтобы топ 1 был посередине
@@ -162,14 +162,14 @@ async function getUserData() {
 
     sortedUsers.forEach(async (user, index) => {
         if (user) {
-            const userImageResponse = await fetch(`http://127.0.0.1:8000/profile/image/${user.id}`);
+            const userImageResponse = await fetch(`http://127.0.0.1:8082/profile/image/${user.id}`);
             const imgSrc = userImageResponse.url;
             const userData = {
                 top: index === 2 ? 'top1' : '', // Указываем, что это топ 1
                 imgSrc: imgSrc,
                 title: user.nickname,
                 rating: user.solo_rating,
-                link: `http://localhost:8000/user/${user.nickname}`,
+                link: `http://localhost:8082/user/${user.nickname}`,
             };
             header.appendChild(createCard(userData));
         }

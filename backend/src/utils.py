@@ -46,11 +46,8 @@ async def create_upload_avatar(
         with open(save_path, "wb") as new_file:
             shutil.copyfileobj(file.file, new_file)
 
-        # Открываем изображение
         with Image.open(save_path) as img:
-            # Изменяем размер изображения на 350x350
             img = img.resize((350, 350))
-            # Создаем новый файл, преобразовывая изображение в формат WebP
             new_save_path = os.path.splitext(save_path)[0] + ".webp"
             img.save(new_save_path, "WEBP")
 
