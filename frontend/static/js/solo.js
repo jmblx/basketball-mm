@@ -19,7 +19,7 @@
         }
 
         if (window.SharedWorker) {
-            var myWorker = new SharedWorker('/static/js/shared-websocket-worker.js');
+            var myWorker = new SharedWorker('http://localhost:8082/static/js/shared-websocket-worker.js');
             myWorker.port.start();
             myWorker.port.onmessage = function(e) {
                 var data = JSON.parse(e.data);
