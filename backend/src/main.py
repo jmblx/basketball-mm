@@ -123,7 +123,7 @@ app.add_middleware(
 
 app.add_middleware(PrometheusMiddleware)
 app.add_route("/metrics", handle_metrics)
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 @app.on_event("startup")

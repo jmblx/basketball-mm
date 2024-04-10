@@ -15,7 +15,7 @@ async function startWebSocket(objectId, matchType, teamId) {
         teamId = teamId || null
 
         let team_info;
-        if (teamId) {
+        if (teamId != null) {
             teamInfo = `&teamid=${teamId}`
         }
         else {

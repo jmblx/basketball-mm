@@ -47,6 +47,7 @@ async def websocket_endpoint(
 ):
     await websocket.accept()
     connected_users[userid] = websocket
+    print(connected_users)
     try:
         while True:
             data = await websocket.receive_text()

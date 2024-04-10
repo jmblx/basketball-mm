@@ -54,6 +54,7 @@
 
         function startMatchmaking() {
             if (userData && userData.id) {
+                console.log("userID:")
                 console.log(userData.id)
                 sendMessageToWorker({ action: "startSearch", finderId: userData.id, matchType: '1x1' });
                 document.getElementById('matchmakingStatus').textContent = 'Searching for a match...';
