@@ -20,9 +20,11 @@
 
         if (window.SharedWorker) {
             var myWorker = new SharedWorker('https://176.109.110.111/static/js/shared-websocket-worker.js');
+            console.log("worker created");
             myWorker.port.start();
             myWorker.port.onmessage = function(e) {
                 var data = JSON.parse(e.data);
+                console.log(data.action);
                 switch (data.action) {
                     case 'matchFound':
                         console.log(data.matchID)
@@ -50,6 +52,7 @@
 
         function sendMessageToWorker(message) {
                 myWorker.port.postMessage(JSON.stringify(message));
+                console.log(message);
         }
 
         function startMatchmaking() {
