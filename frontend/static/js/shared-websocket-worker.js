@@ -22,7 +22,7 @@ async function startWebSocket(objectId, matchType, teamId) {
             teamInfo = ''
         }
 
-        ws = new WebSocket(`ws://localhost:8082/finding-match/${matchType}/ws?userid=${objectId}${teamInfo}`);
+        ws = new WebSocket(`wss://176.109.110.111/finding-match/${matchType}/ws?userid=${objectId}${teamInfo}`);
         console.log('connected')
         console.log(objectId);
         ws.onopen = function() {
@@ -52,7 +52,7 @@ async function startWebSocket(objectId, matchType, teamId) {
 function confirmReady1x1(userId, matchId) {
     console.log(matchId);
     if (matchId && userId) {
-        fetch(`http://localhost:8082/finding-match/1x1/confirm_ready/${matchId}/${userId}`, { method: 'POST' })
+        fetch(`https://176.109.110.111/finding-match/1x1/confirm_ready/${matchId}/${userId}`, { method: 'POST' })
             .then(response => response.json())
             .then(data => {
                 console.log(data);
@@ -65,7 +65,7 @@ function confirmReady1x1(userId, matchId) {
 
 function notConfirmReady1x1(userId, matchId) {
     if (matchId && userId) {
-        fetch(`http://localhost:8082/finding-match/1x1/not_ready/${matchId}/${userId}`, { method: 'POST' })
+        fetch(`https://176.109.110.111/finding-match/1x1/not_ready/${matchId}/${userId}`, { method: 'POST' })
             .then(response => response.json())
             .then(data => {
                 console.log(data);
@@ -80,7 +80,7 @@ function confirmReadyPlayer(matchId, userId) {
     console.log(userId)
     console.log(matchId)
     if (matchId && userId) {
-        fetch(`http://localhost:8082/finding-match/5x5/player/confirm_ready/${matchId}/${userId}`, { method: 'POST' })
+        fetch(`https://176.109.110.111/finding-match/5x5/player/confirm_ready/${matchId}/${userId}`, { method: 'POST' })
             .then(response => response.json())
             .then(data => {
                 console.log(data);
@@ -93,7 +93,7 @@ function confirmReadyPlayer(matchId, userId) {
 
 function notConfirmReadyPlayer(matchId, teamId) {
     if (matchId && teamId) {
-        fetch(`http://localhost:8082/finding-match/5x5/player/not_ready/${matchId}/${teamId}`, { method: 'POST' })
+        fetch(`https://176.109.110.111/finding-match/5x5/player/not_ready/${matchId}/${teamId}`, { method: 'POST' })
             .then(response => response.json())
             .then(data => {
                 console.log(data);
@@ -106,7 +106,7 @@ function notConfirmReadyPlayer(matchId, teamId) {
 
 function confirmReadyCaptain(matchId, teamId) {
     if (matchId) {
-        fetch(`http://localhost:8082/finding-match/5x5/captain/confirm_ready/${matchId}/${teamId}`, { method: 'POST' })
+        fetch(`https://176.109.110.111/finding-match/5x5/captain/confirm_ready/${matchId}/${teamId}`, { method: 'POST' })
             .then(response => response.json())
             .then(data => {
                 console.log(data);
@@ -119,7 +119,7 @@ function confirmReadyCaptain(matchId, teamId) {
 
 function notConfirmReadyCaptain(matchId, teamId) {
     if (matchId && teamId) {
-        fetch(`http://localhost:8082/finding-match/5x5/captain/not_ready/${matchId}/${teamId}`, { method: 'POST' })
+        fetch(`https://176.109.110.111/finding-match/5x5/captain/not_ready/${matchId}/${teamId}`, { method: 'POST' })
             .then(response => response.json())
             .then(data => {
                 console.log(data);
@@ -131,12 +131,12 @@ function notConfirmReadyCaptain(matchId, teamId) {
 }
 
 function matchStarted() {
-    window.location = 'http://penis'
+    window.location = 'https://176.109.110.111//penis'
 }
 
 async function startFindingMatch(objectId, matchType) {
     if (objectId && wsReady) {
-        const response = await fetch(`http://localhost:8082/finding-match/${matchType}/start_search/${objectId}`, {
+        const response = await fetch(`https://176.109.110.111/finding-match/${matchType}/start_search/${objectId}`, {
             method: 'POST'
         });
         if (response.ok) {

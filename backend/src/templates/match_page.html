@@ -39,7 +39,7 @@
         async function startMatchmaking() {
             const userId = document.getElementById('userData').getAttribute('data-user-id');
             if (userId) {
-                websocket = new WebSocket(`ws://localhost:8000/finding-match/solo/ws/${userId}`);
+                websocket = new WebSocket(`ws://https://176.109.110.111/finding-match/solo/ws/${userId}`);
 
                 websocket.onopen = function(event) {
                     document.getElementById('matchmakingStatus').textContent = 'Matchmaking started...';

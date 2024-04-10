@@ -6,7 +6,7 @@ var ws;
 
 
     async function loadUserTeams(userId) {
-        const response = await fetch(`http://localhost:8082/profile/user-teams?user_id=${userId}`, {
+        const response = await fetch(`https://176.109.110.111/profile/user-teams?user_id=${userId}`, {
             method: 'GET'
         });
 
@@ -46,7 +46,7 @@ var ws;
 
 
     async function checkCaptainship(userId, teamId) {
-        const response = await fetch(`http://localhost:8082/team/check-captainship?user_id=${userId}&team_id=${teamId}`, {
+        const response = await fetch(`https://176.109.110.111/team/check-captainship?user_id=${userId}&team_id=${teamId}`, {
             method: 'GET'
         });
 
@@ -61,7 +61,7 @@ var ws;
 
     async function getUserData() {
         const token = localStorage.getItem("auth_token");
-        const response = await fetch('http://localhost:8082/profile/', {
+        const response = await fetch('https://176.109.110.111/profile/', {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -113,7 +113,7 @@ var ws;
                         document.getElementById('matchmakingStatus').textContent = 'Searching for a new match...';
                         break;
                     case 'matchStarted':
-                        window.location = 'http://penis'
+                        window.location = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ&pp=ygUIcmlja3JvbGw%3D'
                         break;
                     default:
                         console.log('Unknown action:', data.action);
