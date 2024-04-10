@@ -23,7 +23,8 @@ async function startWebSocket(objectId, matchType, teamId) {
         }
 
         ws = new WebSocket(`wss://localhost:8082/finding-match/${matchType}/ws?userid=${objectId}${teamInfo}`);
-
+        console.log('connected')
+        console.log(objectId);
         ws.onopen = function() {
             wsReady = true;
             resolve();
@@ -166,7 +167,7 @@ self.onconnect = function(e) {
                     if (finderId) {
                         if (!ws || !wsReady) {
                             try {
-                                await startWebSocket(finderId, matchType);
+                                await startWebSocket(finderId, matchType, null);
                                 startFindingMatch(finderId, matchType);
                             } catch (error) {
                                 console.log('Не удалось установить WebSocket соединение:', error);
