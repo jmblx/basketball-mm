@@ -22,7 +22,7 @@ async function startWebSocket(objectId, matchType, teamId) {
             teamInfo = ''
         }
 
-        ws = new WebSocket(`ws://176.109.110.111/finding-match/${matchType}/ws?userid=${objectId}${teamInfo}`);
+        ws = new WebSocket(`wss://176.109.110.111/finding-match/${matchType}/ws?userid=${objectId}${teamInfo}`);
         console.log('connected')
         console.log(objectId);
         ws.onopen = function() {
@@ -52,7 +52,7 @@ async function startWebSocket(objectId, matchType, teamId) {
 function confirmReady1x1(userId, matchId) {
     console.log(matchId);
     if (matchId && userId) {
-        fetch(`http://176.109.110.111/finding-match/1x1/confirm_ready/${matchId}/${userId}`, { method: 'POST' })
+        fetch(`https://176.109.110.111/finding-match/1x1/confirm_ready/${matchId}/${userId}`, { method: 'POST' })
             .then(response => response.json())
             .then(data => {
                 console.log(data);
@@ -65,7 +65,7 @@ function confirmReady1x1(userId, matchId) {
 
 function notConfirmReady1x1(userId, matchId) {
     if (matchId && userId) {
-        fetch(`http://176.109.110.111/finding-match/1x1/not_ready/${matchId}/${userId}`, { method: 'POST' })
+        fetch(`https://176.109.110.111/finding-match/1x1/not_ready/${matchId}/${userId}`, { method: 'POST' })
             .then(response => response.json())
             .then(data => {
                 console.log(data);
