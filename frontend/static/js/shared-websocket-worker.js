@@ -155,6 +155,8 @@ self.onconnect = function(e) {
     clients.push(port);
     port.onmessage = async function(event) {
         var data = JSON.parse(event.data);
+        console.log("data");
+        console.log(data);
         finderId = data.finderId
         userId = data.userId
         matchId = data.matchId
