@@ -22,7 +22,7 @@ async function startWebSocket(objectId, matchType, teamId) {
             teamInfo = ''
         }
 
-        ws = new WebSocket(`ws://176.109.110.111/finding-match/${matchType}/ws?userid=${objectId}${teamInfo}`);
+        ws = new WebSocket(`wss://176.109.110.111/finding-match/${matchType}/ws?userid=${objectId}${teamInfo}`);
         console.log('connected')
         console.log(objectId);
         ws.onopen = function() {
