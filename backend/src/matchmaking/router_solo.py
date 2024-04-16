@@ -80,7 +80,7 @@ async def find_opponent(
     return None, None
 
 
-@router.websocket("/start_search/{user_id}")
+@router.post("/start_search/{user_id}")
 async def start_search(
     user_id: UUID,
     background_tasks: BackgroundTasks,
