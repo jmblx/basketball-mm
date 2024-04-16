@@ -128,23 +128,6 @@ app.add_route("/metrics", handle_metrics)
 
 @app.on_event("startup")
 async def startup_event():
-    import logging
-    import sys
-
-    # Создание и настройка объекта логгера
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.INFO)
-
-    # Создание обработчика для вывода в stdout
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setLevel(logging.INFO)
-
-    # Создание форматтера для логов
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-
-    # Добавление обработчика к логгеру
-    logger.addHandler(handler)
 
     redis = aioredis.from_url(
         f"redis://{REDIS_HOST}:{REDIS_PORT}",

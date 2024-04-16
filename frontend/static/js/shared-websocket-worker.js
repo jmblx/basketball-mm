@@ -21,7 +21,7 @@ async function startWebSocket(objectId, matchType, teamId) {
         else {
             teamInfo = ''
         }
-
+        console.log(`wss://176.109.110.111/finding-match/${matchType}/ws?userid=${objectId}${teamInfo}`)
         ws = new WebSocket(`wss://176.109.110.111/finding-match/${matchType}/ws?userid=${objectId}${teamInfo}`);
         console.log('connected')
         console.log(objectId);
