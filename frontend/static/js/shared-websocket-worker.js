@@ -13,7 +13,7 @@ async function startWebSocket(objectId, matchType, teamId) {
     closeCurrentConnection();
     return new Promise((resolve, reject) => {
         teamId = teamId || null
-
+        console.log("connecting")
         let team_info;
         if (teamId != null) {
             teamInfo = `&teamid=${teamId}`
@@ -21,7 +21,7 @@ async function startWebSocket(objectId, matchType, teamId) {
         else {
             teamInfo = ''
         }
-        console.log(`wss://176.109.110.111/finding-match/${matchType}/ws?userid=${objectId}${teamInfo}`)
+        console.log(`176.109.110.111/finding-match/${matchType}/ws?userid=${objectId}${teamInfo}`)
         ws = new WebSocket(`wss://176.109.110.111/finding-match/${matchType}/ws?userid=${objectId}${teamInfo}`);
         console.log('connected')
         console.log(objectId);
@@ -164,9 +164,14 @@ self.onconnect = function(e) {
         if (matchType === '1x1') {
             switch (data.action) {
                 case 'startSearch':
+                        console.log("case")
                     if (finderId) {
+                        console.log("finderId")
+                        console.log(finderId)
                         if (!ws || !wsReady) {
+                            console.log("!ws || !wsReady")
                             try {
+                                console.log("trying to connect")
                                 await startWebSocket(finderId, matchType, null);
                                 startFindingMatch(finderId, matchType);
                             } catch (error) {
