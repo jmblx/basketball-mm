@@ -37,26 +37,7 @@ async def notify_user_about_match(player_ids, match_id):
         print(connected_users)
 
 
-# connected_users = {}
-#
-#
-# @router.websocket("/ws")
-# async def websocket_endpoint(
-#     websocket: WebSocket,
-#     userid,
-#     redis=Depends(get_redis),
-# ):
-#     await websocket.accept()
-#     connected_users[userid] = websocket
-#     print(connected_users)
-#     try:
-#         while True:
-#             data = await websocket.receive_text()
-#
-#     except WebSocketDisconnect:
-#         await redis.zrem("user_search_queue", str(userid))
-#         del connected_users[userid]
-connected_users = defaultdict(list)
+connected_users = {}
 
 
 @router.websocket("/ws")
@@ -66,7 +47,7 @@ async def websocket_endpoint(
     redis=Depends(get_redis),
 ):
     await websocket.accept()
-    connected_users[userid].append(websocket)
+    connected_users[userid] = websocket
     print(connected_users)
     try:
         while True:
@@ -74,9 +55,28 @@ async def websocket_endpoint(
 
     except WebSocketDisconnect:
         await redis.zrem("user_search_queue", str(userid))
-        connected_users[userid].remove(websocket)
-        if not connected_users[userid]:
-            del connected_users[userid]
+        del connected_users[userid]
+# connected_users = defaultdict(list)
+#
+#
+# @router.websocket("/ws")
+# async def websocket_endpoint(
+#     websocket: WebSocket,
+#     userid,
+#     redis=Depends(get_redis),
+# ):
+#     await websocket.accept()
+#     connected_users[userid].append(websocket)
+#     print(connected_users)
+#     try:
+#         while True:
+#             data = await websocket.receive_text()
+#
+#     except WebSocketDisconnect:
+#         await redis.zrem("user_search_queue", str(userid))
+#         connected_users[userid].remove(websocket)
+#         if not connected_users[userid]:
+#             del connected_users[userid]
 
 
 async def add_user_to_search(user_id: UUID, user_rating: int, redis):
