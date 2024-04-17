@@ -135,7 +135,9 @@ function matchStarted() {
 }
 
 async function startFindingMatch(objectId, matchType) {
+    console.log(`http://176.109.110.111/finding-match/${matchType}/start_search/${objectId}`);
     if (objectId && wsReady) {
+        console.log("zapros bil");
         const response = await fetch(`http://176.109.110.111/finding-match/${matchType}/start_search/${objectId}`, {
             method: 'POST'
         });
@@ -175,6 +177,8 @@ self.onconnect = function(e) {
                             try {
                                 console.log("trying to connect")
                                 await startWebSocket(finderId, matchType, null);
+                                console.log(finderId)
+                                console.log(matchType)
                                 startFindingMatch(finderId, matchType);
                             } catch (error) {
                                 console.log('Не удалось установить WebSocket соединение:', error);
