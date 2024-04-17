@@ -96,6 +96,7 @@ async def find_opponent(
         user_rating + threshold,
         withscores=True,
     )
+    print(opponents)
     for opponent_id, opponent_rating in opponents:
         if str(opponent_id) != str(user_id):
             return opponent_id, opponent_rating
