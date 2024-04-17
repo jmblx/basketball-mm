@@ -1,7 +1,7 @@
 async function registerAndLogin(email, password, name) {
           try {
             // Попытка регистрации
-            const registerResponse = await fetch('https://176.109.110.111/auth/register', {
+            const registerResponse = await fetch('http://176.109.110.111/auth/register', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json'
@@ -23,7 +23,7 @@ async function registerAndLogin(email, password, name) {
             }
 
             // Попытка входа после успешной регистрации
-            const loginResponse = await fetch('https://176.109.110.111/auth/jwt/login', {
+            const loginResponse = await fetch('http://176.109.110.111/auth/jwt/login', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
@@ -65,7 +65,7 @@ async function registerAndLogin(email, password, name) {
 
         async function fetchGoogleAuthUrl() {
           try {
-            const response = await fetch('https://176.109.110.111/auth/google/authorize');
+            const response = await fetch('http://176.109.110.111/auth/google/authorize');
             if (!response.ok) {
               throw new Error(`Ошибка запроса: ${response.statusText}`);
             }
