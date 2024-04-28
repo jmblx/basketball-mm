@@ -1,0 +1,622 @@
+/*.poppins-regular {*/
+/*    font-family: "Poppins", sans-serif;*/
+/*    font-weight: 400;*/
+/*    font-style: normal;*/
+/*}*/
+
+/*.poppins-bold {*/
+/*    font-family: "Poppins", sans-serif;*/
+/*    font-weight: 700;*/
+/*    font-style: normal;*/
+/*}*/
+
+/*.poppins-bold-italic {*/
+/*    font-family: "Poppins", sans-serif;*/
+/*    font-weight: 700;*/
+/*    font-style: italic;*/
+/*}*/
+* {
+    margin: 0;
+    padding: 0;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -o-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+}
+
+h1{
+    font-weight: 700;
+    text-align: center;
+    font-size: 40px;
+    color: #000000;
+    -webkit-background-clip: text;
+}
+
+h2 {
+    font-weight: 700;
+    font-size: 25px;
+}
+
+header {
+    border-bottom: 1px solid #FFFFFF;
+    height: auto;
+    width: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+span {
+    color: #000000;
+    font-weight: 400;
+    font-size: 25px;
+}
+
+a {
+    color: #FFFFFF;
+    text-decoration: none;
+}
+
+button {
+    color: #FFFFFF;
+    background-color: #F96F33;
+    font-size: 25px;
+    font-weight: 700;
+    border: none;
+    display: block;
+    padding: 5px;
+    margin: 0 auto;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: box-shadow 0.3s ease-in-out; /* Плавная анимация */
+}
+
+button:hover {
+    box-shadow: 0 8px 16px 0 rgba(255, 255, 255, 0.2); /* Эффект тени при наведении */
+}
+
+/* Модальное окно поиска */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    border-radius: 30px;
+    padding: 10px;
+    display: flex;
+    border: 1px solid #888;
+    width: 70%;
+    justify-content: space-between;
+}
+
+.modal-content img {
+    width: 30px;
+    height: 30px;
+    align-self: center;
+    cursor: pointer;
+    margin: 10px;
+}
+
+.close {
+    font-size: 25px;
+}
+
+.inputModal {
+    border: 1px solid #7F7F7F;
+    border-radius: 30px;
+    padding: 20px;
+    width: 100%;
+    margin: auto;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.body-no-scroll {
+    overflow: hidden;
+    height: 100%;
+}
+
+/* Главная */
+.containerWithImage {
+    background-image: url("/static/bg.png");
+    padding-bottom: 500px;
+    background-repeat: repeat-x;
+}
+.titleHeader {
+    font-size: 20px;
+    color: #F96F33;
+    font-weight: 700;
+    font-style: italic;
+    padding: 10px;
+    transition: text-shadow 0.3s ease;
+}
+
+a .titleHeader:hover {
+    text-shadow: 2px 2px 4px rgb(0, 0, 0, 0.5);
+}
+
+.menuHeader {
+    font-size: 19px;
+    color: #FFFFFF;
+    list-style: none;
+    font-weight: 700;
+    display: flex;
+    justify-content: center;
+    height: auto;
+}
+
+.menuHeader li {
+    padding-right: 25px;
+    margin: auto;
+    transition: transform 0.3s ease, text-shadow 0.3s ease;
+}
+
+.menuHeader li:hover {
+    transform: translateX(-5px);
+    text-shadow: 2px 2px 4px rgb(249, 111, 51);
+}
+
+.linksHeader {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.linksHeader img {
+    padding: 10px;
+    width: 50px;
+    height: 50px;
+    transition: transform 0.3s ease; /* Плавная анимация */
+}
+
+.linksHeader img:hover {
+    transform: scale(1.1); /* Полное вращение */
+}
+
+.titleMain {
+    font-size: 150px;
+    font-weight: 700;
+    color: #FFFFFF;
+    text-align: center;
+    margin: 0;
+}
+
+.descMain {
+    color: #FFFFFF;
+    font-weight: 400;
+    margin-top: 150px;
+    text-align: center;
+    font-size: 19px;
+}
+
+/* Топ лист */
+.containerTopPlayers {
+    background-color: rgba(109, 109, 109, 50%);
+    padding: 100px;
+}
+
+.titleTopPlayers {
+    margin: 0 0 50px 0;
+    font-weight: 700;
+    text-align: center;
+    font-size: 40px;
+    color: #000000;
+}
+
+.containerCards {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    place-items: center;
+}
+
+.cardTopPlayer {
+    background-color: #FFFFFF;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    width: 450px;
+    border-radius: 15px;
+    padding: 15px;
+    margin: auto 15px auto auto;
+    text-align: center;
+}
+
+.cardTopPlayer p {
+    margin: 5px;
+    font-weight: 700;
+    font-size: 25px;
+}
+
+.cardTopPlayer span {
+    color: #F96F33;
+    font-weight: 400;
+    font-size: 25px;
+}
+
+/* Новостной слайдер */
+.wrapper {
+    height: 350px;
+    margin: 50px auto 100px auto;
+    position: relative;
+    width: 700px;
+}
+
+.slider {
+    background-color: #ddd;
+    height: inherit;
+    overflow: hidden;
+    position: relative;
+    width: inherit;
+    -webkit-box-shadow: 0 0 20px rgba(0, 0, 0, .5);
+    -moz-box-shadow: 0 0 20px rgba(0, 0, 0, .5);
+    -o-box-shadow: 0 0 20px rgba(0, 0, 0, .5);
+    box-shadow: 0 0 20px rgba(0, 0, 0, .5);
+}
+
+.wrapper > input {
+    display: none;
+}
+
+.slides {
+    height: inherit;
+    position: absolute;
+    width: inherit;
+}
+
+.slide1 { background-image: url(https://c4.wallpaperflare.com/wallpaper/772/402/471/car-nismo-nissan-skyline-gt-r-r34-nismo-nissan-skyline-gt-r-r34-skyline-gtr-hd-wallpaper-preview.jpg); }
+.slide2 { background-image: url(https://c4.wallpaperflare.com/wallpaper/744/52/874/the-sun-japan-machine-tuning-wallpaper-preview.jpg); }
+.slide3 { background-image: url(https://c4.wallpaperflare.com/wallpaper/791/650/541/white-night-tuning-toyota-wallpaper-preview.jpg); }
+.slide4 { background-image: url(https://c4.wallpaperflare.com/wallpaper/831/999/804/mazda-rx7-tuning-yellow-wallpaper-preview.jpg); }
+.slide5 { background-image: url(https://c4.wallpaperflare.com/wallpaper/318/745/119/white-toyota-supra-1993-wallpaper-preview.jpg); }
+
+.wrapper .controls {
+    left: 50%;
+    margin-left: -50px;
+    position: absolute;
+}
+
+.wrapper label {
+    cursor: pointer;
+    display: inline-block;
+    height: 8px;
+    margin: 25px 12px 0 16px;
+    position: relative;
+    width: 8px;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    -o-border-radius: 50%;
+    border-radius: 50%;
+}
+
+.wrapper label:after {
+    border: 2px solid #ddd;
+    content: " ";
+    display: block;
+    height: 12px;
+    left: -4px;
+    position: absolute;
+    top: -4px;
+    width: 12px;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    -o-border-radius: 50%;
+    border-radius: 50%;
+}
+
+.wrapper label {
+    cursor: pointer;
+    display: inline-block;
+    height: 8px;
+    margin: 25px 12px 0 16px;
+    position: relative;
+    width: 8px;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    -o-border-radius: 50%;
+    border-radius: 50%;
+    -webkit-transition: background ease-in-out .5s;
+    -moz-transition: background ease-in-out .5s;
+    -o-transition: background ease-in-out .5s;
+    transition: background ease-in-out .5s;
+}
+
+.wrapper label:hover,
+#slide1:checked ~ .controls label:nth-of-type(1),
+#slide2:checked ~ .controls label:nth-of-type(2),
+#slide3:checked ~ .controls label:nth-of-type(3),
+#slide4:checked ~ .controls label:nth-of-type(4),
+#slide5:checked ~ .controls label:nth-of-type(5) {
+    background: #ddd;
+}
+
+.slides {
+    height: inherit;
+    opacity: 0;
+    position: absolute;
+    width: inherit;
+    z-index: 0;
+    -webkit-transform: scale(1.5);
+    -moz-transform: scale(1.5);
+    -o-transform: scale(1.5);
+    transform: scale(1.5);
+    /*-webkit-transition: transform ease-in-out .5s, opacity ease-in-out .5s;*/
+    /*-moz-transition: transform ease-in-out .5s, opacity ease-in-out .5s;*/
+    /*-o-transition: transform ease-in-out .5s, opacity ease-in-out .5s;*/
+    /*transition: transform ease-in-out .5s, opacity ease-in-out .5s;*/
+}
+
+#slide1:checked ~ .slider > .slide1,
+#slide2:checked ~ .slider > .slide2,
+#slide3:checked ~ .slider > .slide3,
+#slide4:checked ~ .slider > .slide4,
+#slide5:checked ~ .slider > .slide5 {
+    opacity: 1;
+    z-index: 1;
+    -webkit-transform: scale(1);
+    -moz-transform: scale(1);
+    -o-transform: scale(1);
+    transform: scale(1);
+}
+
+/*Страница регистрации и авторизации*/
+.cardReg {
+    padding: 15px;
+    background-color: #FFFFFF;
+    border-radius: 15px;
+    margin: auto;
+    width: 30%;
+}
+
+.cardReg p{
+    text-align: center;
+    font-weight: 700;
+    font-style: italic;
+    font-size: 25px;
+}
+
+.cardReg input {
+    display: block;
+    margin: 15px auto;
+    border: 1px solid #909090;
+    padding: 10px;
+    width: 70%;
+    border-radius: 10px;
+}
+
+.cardReg button {
+    transition: box-shadow 0.3s ease-in-out; /* Плавная анимация */
+}
+
+.cardReg button:hover {
+    box-shadow: 0 8px 16px 0 rgb(0, 0, 0, 0.2);
+}
+
+.googleButton {
+    background-color: #FFFFFF;
+    display: flex;
+    height: auto;
+    justify-content: center;
+    align-items: center;
+    color: #000000;
+    font-size: 20px;
+    font-weight: 400;
+    border: 1px solid #909090;
+    margin: 15px auto;
+    border-radius: 10px;
+    cursor: pointer;
+    gap: 10px;
+}
+
+.googleButton img {
+    margin: 0;
+}
+
+/*Ладдер*/
+.cardLadder {
+    background-color: #FFFFFF;
+    display: block;
+    border-radius: 15px;
+    width: 50%;
+    padding: 15px;
+}
+
+.cardTopSolo {
+    display: flex;
+    font-weight: 700;
+    font-style: italic;
+    border: 1px solid #848484;
+    border-radius: 15px;
+    align-items: center;
+    padding: 5px;
+    justify-content: space-between;
+    margin: 10px;
+}
+
+.cardTopSolo img {
+    width: 50px;
+    height: 50px;
+}
+
+.infoCard {
+    display: flex;
+    align-items: center;
+}
+
+.infoCard h2 {
+    margin: 13px;
+}
+
+/*Хедер другого цвета*/
+.menuHeaderWhite {
+    font-size: 19px;
+    color: #000000;
+    list-style: none;
+    font-weight: 700;
+    display: flex;
+    justify-content: center;
+    height: auto;
+}
+
+.menuHeaderWhite li {
+    padding-right: 25px;
+    margin: auto;
+    transition: transform 0.3s ease, text-shadow 0.3s ease;
+}
+
+.menuHeaderWhite li:hover {
+    transform: translateX(-5px);
+    text-shadow: 2px 2px 4px rgb(249, 111, 51);
+}
+
+.menuHeaderWhite a {
+    color: #000000;
+    text-decoration: none;
+}
+
+/*Страница команды*/
+.avatarProfile {
+    display: flex;
+    align-items: end;
+    padding: 15px;
+    justify-content: center;
+}
+
+.editImg {
+    width: 35px;
+    height: 35px;
+}
+
+.containerTeam {
+    align-items: center;
+}
+
+.linksTeam {
+    display: flex;
+    justify-content: center;
+}
+
+.logoTeam {
+    margin: auto;
+}
+
+.linksTeam img {
+    width: 25px;
+    height: 25px;
+    margin: 0 15px 15px 0;
+    cursor: pointer;
+}
+
+.containerTeam img {
+    display: flex;
+}
+
+.containerTeam h2 {
+    text-align: center;
+}
+
+.cardTeamPlayers {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    font-size: 25px;
+}
+
+.cardTeamPlayers span {
+    font-size: 15px;
+}
+
+.cardTeamPlayers img {
+    width: 45px;
+    height: 45px;
+    margin: 0 10px 0 0;
+}
+
+.leaderPlayer {
+    display: flex;
+    align-items: center;
+}
+
+.leaderPlayer img {
+    width: 15px;
+    height: 15px;
+    margin: 0;
+}
+
+.infoPlayer p{
+    font-size: 20px;
+}
+
+.cardTeamPlayers p {
+    margin-right: 10px;
+}
+
+.listPlayers {
+    padding-left: 20px;
+    list-style: none inside none;
+}
+
+.listPlayers li {
+    font-size: 25px;
+    font-weight: 700;
+}
+
+.listPlayers span {
+    margin-left: 20px;
+    font-size: 20px;
+}
+
+.containerMatchScore {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.containerMatchPlayers {
+    display: flex;
+    justify-content: space-around;
+}
+
+/*Страница матча*/
+.matchTeam {
+    display: block;
+}
+
+.matchTeamPlayer img {
+    width: 45px;
+    height: 45px;
+    font-size: 15px;
+    margin-right: 10px;
+}
+
+.matchTeamPlayer span {
+    font-size: 15px;
+    margin-right: 10px;
+}
+
+.matchTeamPlayer {
+    display: flex;
+    align-items: center;
+    font-size: 15px;
+    padding: 10px;
+}
