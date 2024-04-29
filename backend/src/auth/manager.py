@@ -76,7 +76,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         email["To"] = user_dict.get("email")
         email_content = f"""
                    Здравствуйте! Если вы зарегестрировались на сайте basketball-mm,
-                   используя эту почту, то перейдите по следующей ссылке: localhost:8000/custom/email-confirmation/{token}
+                   используя эту почту, то перейдите по следующей ссылке: http://176.109.110.111/custom/email-confirmation/{token}
                """
         email.set_content(email_content, subtype="html")
         with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT) as server:
