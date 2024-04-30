@@ -1,5 +1,6 @@
 # Basketball Matchmaking
 ### Для развертывания: 
-``` docker-compose up
+```
+docker-compose up
 ```
 ### Остальное в соответствующих папках
