@@ -13,9 +13,9 @@
         <header>
             <p class="titleHeader">Basket Place</p>
             <ul class="menuHeader">
-                <li><a href="ladder.html">Ладдер</a></li>
-                <li><a href="match.html">Матчи</a></li>
-                <li><a href="createTeam.html">Команды</a></li>
+                <li><a href="http://176.109.110.111/templates/ladder.html">Ладдер</a></li>
+                <li><a href="http://176.109.110.111/templates/match.html">Матчи</a></li>
+                <li><a href="http://176.109.110.111/templates/createTeam.html">Команды</a></li>
             </ul>
             <div class="linksHeader">
                 <p id="userNickname" class="nickname"></p>
@@ -33,7 +33,7 @@
         <div>
             <p class="descMain">Добро пожаловать в Basket Place, место, где вы можете стать профессионалом в баскетболе, прямо как Майкл Джордан</p>
             <p class="titleMain" id="title">Basket Place</p>
-            <button class="inputButton"><a href="login.html">Войти</a></button>
+            <button class="inputButton"><a href="http://176.109.110.111/templates/login.html">Войти</a></button>
         </div>
     </section>
     <h1>Новости</h1>
@@ -83,39 +83,6 @@
 <!--            </div>-->
 <!--        </div>-->
 <!--    </section>-->
-<script>
-    async function fetchUserProfile() {
-        try {
-            const response = await fetch('http://176.109.110.111/profile', {
-                method: 'GET',
-                headers: {
-                    'Authorization': 'Bearer ' + localStorage.getItem('auth_token'), // Используем токен из localStorage
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error(`Ошибка запроса профиля: ${response.statusText}`);
-            }
-
-            const userData = await response.json();
-            console.log('Данные профиля:', userData);
-            displayUserProfile(userData);
-
-        } catch (error) {
-            console.error('Ошибка при получении данных профиля:', error);
-        }
-    }
-
-    function displayUserProfile(userData) {
-        console.log("ID пользователя:", userData.id);
-        const nickname = userData.nickname
-        document.getElementById('userNickname').textContent = nickname || 'Гость'
-        console.log("Дата регистрации:", userData.registered_at);
-        console.log("Соло рейтинг:", userData.rating);
-        console.log("Групповой рейтинг:", userData.group_rating);
-    }
-    fetchUserProfile()
-</script>
+<script src="http://176.109.110.111/js/getUserData.js"></script>
 </body>
 </html>
