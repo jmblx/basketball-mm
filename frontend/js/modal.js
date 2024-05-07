@@ -26,7 +26,7 @@ let searchTimeout;
 
 searchInput.addEventListener('input', () => {
     clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(performSearch, 1300); // Поиск через 1.3 секунды после последнего ввода символа
+    searchTimeout = setTimeout(performSearch, 1300);
 });
 
 searchButton.addEventListener('click', () => {

@@ -60,7 +60,7 @@ document.getElementById('regForm').addEventListener('submit', async (event) => {
     try {
         await register(email, password, name);
         console.log('Успешная регистрация и вход');
-        window.location.href = "../index.html"
+        window.location.href = "http://176.109.110.111/templates/index.html"
     } catch (error) {
         console.error('Ошибка при регистрации и входе:', error);
     }
@@ -70,5 +70,3 @@ document.addEventListener('DOMContentLoaded', function() {
     const nickname = localStorage.getItem('nickname');
     document.getElementById('userNickname').textContent = nickname || 'Гость';
 });
-
-fetchUserProfile()

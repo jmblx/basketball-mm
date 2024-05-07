@@ -4,9 +4,9 @@ document.getElementById('regForm').addEventListener('submit', async (event) => {
     const password = document.getElementById('password').value;
 
     try {
-        const loginData = await login(email, password); // Сохраняем результат функции login
+        const loginData = await login(email, password);
         console.log('Успешный вход', loginData);
-        window.location.href = "../index.html";
+        window.location.href = "http://176.109.110.111/templates/index.html";
     } catch (error) {
         console.error('Ошибка при регистрации и входе:', error);
     }

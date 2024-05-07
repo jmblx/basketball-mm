@@ -12,31 +12,28 @@ function logout() {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('nickname')
     localStorage.removeItem('email')
-    window.location.href = '../index.html';
+    window.location.href = 'http://176.109.110.111/templates/index.html';
 }
 
 function attemptUpload() {
     const fileInput = document.getElementById('fileInput');
-    const file = fileInput.files[0]; // Получаем файл из input
+    const file = fileInput.files[0];
 
     if (!file) {
         console.log('Файл не выбран.');
         return;
     }
 
-    // Проверка размера файла (например, не больше 5MB)
     if (file.size > 5 * 1024 * 1024) {
         alert('Размер файла не должен превышать 5MB.');
         return;
     }
 
-    // Проверка типа файла
     if (!file.type.startsWith('image/')) {
         alert('Пожалуйста, выберите изображение.');
         return;
     }
 
-    // Вызов функции загрузки файла
     uploadFile(file);
 }
 
