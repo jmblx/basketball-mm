@@ -11,13 +11,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      
+
       - name: Deploy to server
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          password: ${{ secrets.PASSWORD }}
+          host: 176.109.110.111
+          username: menoitami
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd basketball-mm
             git pull
