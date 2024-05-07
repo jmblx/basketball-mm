@@ -62,7 +62,6 @@ async def get_image(
 async def add_role(
     role: RoleSchema,
     session: AsyncSession = Depends(get_async_session),
-    # user: User = Depends(current_user)
 ):
     stmt = insert(Role).values(**role.model_dump())
     await session.execute(stmt)

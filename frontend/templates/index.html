@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BasketPlace</title>
+    <link rel="stylesheet" href="http://176.109.110.111/styles/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,700;1,700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <section class="containerWithImage">
+        <header>
+            <p class="titleHeader">Basket Place</p>
+            <ul class="menuHeader">
+                <li><a href="ladder.html">Ладдер</a></li>
+                <li><a href="match.html">Матчи</a></li>
+                <li><a href="createTeam.html">Команды</a></li>
+            </ul>
+            <div class="linksHeader">
+                <p id="userNickname" class="nickname"></p>
+                <a href="profile.html"><img src="http://176.109.110.111/static/Account.svg" alt=""></a>
+                <a href="#"><img src="http://176.109.110.111/static/Search.svg" id="searchImg" alt=""></a>
+            </div>
+        </header>
+        <div id="myModal" class="modal">
+            <div class="modal-content">
+                <img id="searchButton" src="http://176.109.110.111/static/SearchBlack.svg">
+                <input class="inputModal" placeholder="Поиск..." id="searchInput">
+                <span class="close">&times;</span>
+            </div>
+        </div>
+        <div>
+            <p class="descMain">Добро пожаловать в Basket Place, место, где вы можете стать профессионалом в баскетболе, прямо как Майкл Джордан</p>
+            <p class="titleMain" id="title">Basket Place</p>
+            <button class="inputButton"><a href="login.html">Войти</a></button>
+        </div>
+    </section>
+    <h1>Новости</h1>
+    <div class="wrapper">
+        <input type="radio" name="point" id="slide1" checked>
+        <input type="radio" name="point" id="slide2">
+        <input type="radio" name="point" id="slide3">
+        <input type="radio" name="point" id="slide4">
+        <input type="radio" name="point" id="slide5">
+        <div class="slider">
+            <div class="slides slide1"></div>
+            <div class="slides slide2"></div>
+            <div class="slides slide3"></div>
+            <div class="slides slide4"></div>
+            <div class="slides slide5"></div>
+        </div>
+        <div class="controls">
+            <label for="slide1"></label>
+            <label for="slide2"></label>
+            <label for="slide3"></label>
+            <label for="slide4"></label>
+            <label for="slide5"></label>
+        </div>
+    </div>
+<!--    <section class="containerTopPlayers">-->
+<!--        <h1 class="titleTopPlayers">Игроки Топ Рейтинга</h1>-->
+<!--        <div class="containerCards">-->
+<!--            <div class="cardTopPlayer">-->
+<!--                <img src="http://176.109.110.111/static/logoPreview.png">-->
+<!--                <p>Назар</p>-->
+<!--                <p>Рейтинг: <span>10000</span></p>-->
+<!--            </div>-->
+<!--            <div class="cardTopPlayer">-->
+<!--                <img src="http://176.109.110.111/static/logoPreview.png">-->
+<!--                <p>Назар</p>-->
+<!--                <p>Рейтинг: <span>10000</span></p>-->
+<!--            </div>-->
+<!--            <div class="cardTopPlayer">-->
+<!--                <img src="http://176.109.110.111/static/logoPreview.png">-->
+<!--                <p>Назар</p>-->
+<!--                <p>Рейтинг: <span>10000</span></p>-->
+<!--            </div>-->
+<!--            <div class="cardTopPlayer">-->
+<!--                <img src="http://176.109.110.111/static/logoPreview.png">-->
+<!--                <p>Назар</p>-->
+<!--                <p>Рейтинг: <span>10000</span></p>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </section>-->
+<script>
+    async function fetchUserProfile() {
+        try {
+            const response = await fetch('http://176.109.110.111/profile', {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('auth_token'), // Используем токен из localStorage
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Ошибка запроса профиля: ${response.statusText}`);
+            }
+
+            const userData = await response.json();
+            console.log('Данные профиля:', userData);
+            displayUserProfile(userData);
+
+        } catch (error) {
+            console.error('Ошибка при получении данных профиля:', error);
+        }
+    }
+
+    function displayUserProfile(userData) {
+        console.log("ID пользователя:", userData.id);
+        const nickname = userData.nickname
+        document.getElementById('userNickname').textContent = nickname || 'Гость'
+        console.log("Дата регистрации:", userData.registered_at);
+        console.log("Соло рейтинг:", userData.rating);
+        console.log("Групповой рейтинг:", userData.group_rating);
+    }
+    fetchUserProfile()
+</script>
+</body>
+</html>

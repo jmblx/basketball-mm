@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="http://176.109.110.111/styles/styles.css">
+    <title>Ваш профиль</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,700;1,700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header style="border-bottom: 1px solid #000000">
+          <a href="index.html"><p class="titleHeader">Basket Place</p></a>
+          <ul class="menuHeaderWhite">
+            <li><a href="ladder.html">Ладдер</a></li>
+            <li><a href="match.html">Матчи</a></li>
+            <li><a href="createTeam.html">Команды</a></li>
+          </ul>
+          <div class="linksHeader">
+            <a href="#"><img src="static/SearchBlack.svg" alt=""></a>
+          </div>
+    </header>
+    <div class="avatarProfile">
+        <img style="border-radius: 50%" src="static/logoPreview.png">
+        <div>
+            <input  onchange="attemptUpload()" style="display: none" type="file" id="fileInput">
+            <label for="fileInput" class="fileInputLabel">
+                <img style="cursor: pointer;" class="editImg" src="static/Edit.svg">
+            </label>
+            <a href="#" onclick="logout()"><img class="editImg" src="static/Exit.svg" id="logout"></a>
+        </div>
+    </div>
+    <h2 id="userNickname" class="nickname"></h2>
+    <h2 id="userEmail" style="text-align: center"><span style="color: #000000"></span></h2>
+    <button style="margin-top: 20px">Сменить пароль</button>
+<script src="./js/user.js"></script>
+</body>
+</html>

@@ -395,6 +395,11 @@ a .titleHeader:hover {
     font-size: 25px;
 }
 
+.textRegLogin {
+    font-size: 15px;
+    font-style: normal;
+}
+
 .cardReg input {
     display: block;
     margin: 15px auto;
@@ -476,6 +481,10 @@ a .titleHeader:hover {
     display: flex;
     justify-content: center;
     height: auto;
+}
+
+.nickname {
+    color: #F96F33;
 }
 
 .menuHeaderWhite li {
@@ -619,4 +628,20 @@ a .titleHeader:hover {
     align-items: center;
     font-size: 15px;
     padding: 10px;
+}
+
+.inputCreate {
+    width: 20%;
+    margin: auto;
+    border-radius: 15px;
+    border: 1px solid #ccc;
+    padding: 15px;
+}
+
+.containerCreateTeam {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    gap: 25px;
 }
