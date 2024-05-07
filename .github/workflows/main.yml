@@ -3,7 +3,7 @@ name: Deploy
 on:
   push:
     branches:
-      - main  # или master, в зависимости от вашей ветки
+      - main
 
 jobs:
   deploy:
@@ -19,7 +19,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           script: |
-            cd /path/to/your/project
+            cd basketball-mm
             git pull
             docker-compose down
             docker-compose up -d
