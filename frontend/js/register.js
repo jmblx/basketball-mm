@@ -65,8 +65,3 @@ document.getElementById('regForm').addEventListener('submit', async (event) => {
         console.error('Ошибка при регистрации и входе:', error);
     }
 });
-
-document.addEventListener('DOMContentLoaded', function() {
-    const nickname = localStorage.getItem('nickname');
-    document.getElementById('userNickname').textContent = nickname || 'Гость';
-});

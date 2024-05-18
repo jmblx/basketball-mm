@@ -48,12 +48,12 @@ async function performSearch() {
 }
 
 async function searchUsers(searchText) {
-    const response = await fetch(`http://127.0.0.1:8000/social/find-user?nickname=${searchText}`);
+    const response = await fetch(`http://176.109.110.111/social/find-user?nickname=${searchText}`);
     return await response.json();
 }
 
 async function searchTeams(searchText) {
-    const response = await fetch(`http://127.0.0.1:8000/social/find-team?team_name=${searchText}`);
+    const response = await fetch(`http://176.109.110.111/social/find-team?team_name=${searchText}`);
     return await response.json();
 }
 

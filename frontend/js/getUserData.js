@@ -29,3 +29,5 @@ function displayUserProfile(userData) {
     console.log("Соло рейтинг:", userData.rating);
     console.log("Групповой рейтинг:", userData.group_rating);
 }
+
+fetchUserProfile()

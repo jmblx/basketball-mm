@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Поиск матча</title>
+    <link rel="stylesheet" href="http://176.109.110.111/styles/styles.css">
+</head>
+<body>
+    <header>
+        <p class="titleHeader">Basket Place</p>
+        <ul class="menuHeader">
+            <li><a href="http://176.109.110.111/templates/ladder.html">Ладдер</a></li>
+            <li><a href="http://176.109.110.111/templates/match.html">Матчи</a></li>
+            <li><a href="http://176.109.110.111/templates/match.html">Найти матч</a></li>
+            <li><a href="http://176.109.110.111/templates/createTeam.html">Команды</a></li>
+        </ul>
+        <div class="linksHeader">
+            <p style="color: #F96F33" id="userNickname"></p>
+            <a href="http://176.109.110.111/templates/profile.html"><img src="http://176.109.110.111/static/Account.svg" alt=""></a>
+            <a href="#"><img src="http://176.109.110.111/static/Search.svg" id="searchImg" alt=""></a>
+        </div>
+    </header>
+    <h1>Соло матч 1х1</h1>
+    <h2>Найдите себе противника</h2>
+    <button onclick="startMatchmaking()">Найти матч</button>
+<script src="http://176.109.110.111/js/sharedWorker.js"></script>
+<script src="http://176.109.110.111/js/solo.js"></script>
+</body>
+</html>

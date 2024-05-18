@@ -139,7 +139,7 @@ button:hover {
 
 /* Главная */
 .containerWithImage {
-    background-image: url("/static/bg.png");
+    background-image: url("http://176.109.110.111/static/bg.png");
     padding-bottom: 500px;
     background-repeat: repeat-x;
 }
@@ -485,6 +485,7 @@ a .titleHeader:hover {
 
 .nickname {
     color: #F96F33;
+    text-align: center;
 }
 
 .menuHeaderWhite li {
