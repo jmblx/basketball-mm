@@ -33,6 +33,13 @@ async function login(email, password) {
                 throw new Error("Ошибка входа");
             }
         }
+        const email = document.getElementById('email').value;
+
+        if (email) {
+            localStorage.setItem('userEmail', email);
+        } else {
+            alert('Пожалуйста, введите действительный email.');
+        }
 
         const loginData = await loginResponse.json();
         localStorage.setItem("auth_token", loginData.access_token);

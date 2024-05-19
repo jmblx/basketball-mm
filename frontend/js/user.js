@@ -38,7 +38,7 @@ function attemptUpload() {
 }
 
 async function uploadFile(file) {
-    const url = `http://176.109.110.111/profile/uploadfile/avatar/${userId}`;
+    const url = `http://176.109.110.111/profile/uploadfile/avatar/${userData.id}`;
 
     const formData = new FormData();
     formData.append('avatar', file, file.name);

@@ -25,12 +25,22 @@ function displayUserProfile(userData) {
     console.log("ID пользователя:", userData.id);
     const nickname = userData.nickname
     document.getElementById('userNickname').textContent = nickname || 'Гость'
-    console.log("Почта:", userData.email);
-    const email = userData.email
-    document.getElementById('userEmail').textContent = email
     console.log("Дата регистрации:", userData.registered_at);
     console.log("Соло рейтинг:", userData.rating);
     console.log("Групповой рейтинг:", userData.group_rating);
 }
 
 fetchUserProfile()
+
+function displaySavedEmail() {
+    const savedEmail = localStorage.getItem('email'); // Получаем email из localStorage
+    const emailDisplayDiv = document.getElementById('userEmail');
+
+    if (savedEmail) {
+        emailDisplayDiv.textContent = `Сохраненный email: ${savedEmail}`;
+    } else {
+        emailDisplayDiv.textContent = 'Сохраненный email отсутствует.';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', displaySavedEmail);

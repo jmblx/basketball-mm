@@ -646,3 +646,9 @@ a .titleHeader:hover {
     text-align: center;
     gap: 25px;
 }
+
+.buttonsContainer {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}

@@ -23,8 +23,10 @@
     <h2 style="text-align: center">Найдите себе противника</h2>
     <p id="matchmakingStatus">Ожидание поиска матча...</p>
     <button onclick="startMatchmaking()">Найти матч</button>
-    <button id="confirmReady" style="display: none" onclick="confirmReady()">Принять матч</button>
-    <button id="notConfirm" style="display: none" onclick="notConfirmReady()">Отклонить матч</button>
+    <div class="buttonsContainer">
+        <button id="confirmReady" style="display: none" onclick="confirmReady()">Принять матч</button>
+        <button id="notConfirm" style="display: none" onclick="notConfirmReady()">Отклонить матч</button>
+    </div>
 <script src="http://176.109.110.111/js/sharedWorker.js"></script>
 <script src="http://176.109.110.111/js/solo.js"></script>
 </body>
