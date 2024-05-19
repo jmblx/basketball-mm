@@ -34,14 +34,14 @@ if (window.SharedWorker) {
                 document.getElementById('notConfirm').style.display = 'block';
                 break;
             case 'matchCancelled':
-                document.getElementById('matchmakingStatus').textContent = 'Match cancelled. Waiting for a new match...';
+                document.getElementById('matchmakingStatus').textContent = 'Матч отменен. Ожидание нового матча...';
                 hideConfirmationButtons();
                 break;
             case 'matchResearch':
-                document.getElementById('matchmakingStatus').textContent = 'Searching for a new match...';
+                document.getElementById('matchmakingStatus').textContent = 'Поиск нового матча...';
                 break;
             case 'matchStarted':
-                document.getElementById('matchmakingStatus').textContent = 'Match is starting...';
+                document.getElementById('matchmakingStatus').textContent = 'Матч в процессе...';
                 break;
             default:
                 console.log('Unknown action:', data.action);
@@ -63,7 +63,7 @@ function startMatchmaking() {
         document.getElementById('matchmakingStatus').textContent = 'Searching for a match...';
     }
     else {
-        alert('User ID is required to start matchmaking.');
+        alert('Противник отклонил принятие матча');
     }
 }
 

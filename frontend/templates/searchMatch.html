@@ -6,23 +6,25 @@
     <link rel="stylesheet" href="http://176.109.110.111/styles/styles.css">
 </head>
 <body>
-    <header>
-        <p class="titleHeader">Basket Place</p>
-        <ul class="menuHeader">
+    <header style="border-bottom: 1px solid #000000">
+        <a href="http://176.109.110.111/templates/index.html"><p class="titleHeader">Basket Place</p></a>
+        <ul class="menuHeaderWhite">
             <li><a href="http://176.109.110.111/templates/ladder.html">Ладдер</a></li>
-            <li><a href="http://176.109.110.111/templates/match.html">Матчи</a></li>
-            <li><a href="http://176.109.110.111/templates/match.html">Найти матч</a></li>
+<!--            <li><a href="#">Матчи</a></li>-->
+            <li><a href="#">Найти матч</a></li>
             <li><a href="http://176.109.110.111/templates/createTeam.html">Команды</a></li>
         </ul>
         <div class="linksHeader">
-            <p style="color: #F96F33" id="userNickname"></p>
-            <a href="http://176.109.110.111/templates/profile.html"><img src="http://176.109.110.111/static/Account.svg" alt=""></a>
-            <a href="#"><img src="http://176.109.110.111/static/Search.svg" id="searchImg" alt=""></a>
+            <a href="http://176.109.110.111/templates/profile.html"><img src="http://176.109.110.111/static/AccountBlack.svg" alt=""></a>
+            <a href="#"><img src="http://176.109.110.111/static/SearchBlack.svg" alt=""></a>
         </div>
     </header>
     <h1>Соло матч 1х1</h1>
-    <h2>Найдите себе противника</h2>
+    <h2 style="text-align: center">Найдите себе противника</h2>
+    <p id="matchmakingStatus">Ожидание поиска матча...</p>
     <button onclick="startMatchmaking()">Найти матч</button>
+    <button id="confirmReady" style="display: none" onclick="confirmReady()">Принять матч</button>
+    <button id="notConfirm" style="display: none" onclick="notConfirmReady()">Отклонить матч</button>
 <script src="http://176.109.110.111/js/sharedWorker.js"></script>
 <script src="http://176.109.110.111/js/solo.js"></script>
 </body>

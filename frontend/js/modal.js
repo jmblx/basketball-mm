@@ -61,7 +61,7 @@ function displayUserResults(nicknames) {
     const userResultsDiv = document.getElementById('user-search-results');
     if (Array.isArray(nicknames) && nicknames.length > 0) {
         userResultsDiv.innerHTML = nicknames.map(nickname =>
-            `<a href="http://localhost:8000/user/${nickname}">${nickname}</a>`
+            `<a href="http://176.109.110.111/users/${nickname}">${nickname}</a>`
         ).join('<br>');
     } else {
         userResultsDiv.innerHTML = 'Пользователь не найден';
@@ -72,7 +72,7 @@ function displayTeamResults(teams) {
     const teamResultsDiv = document.getElementById('team-search-results');
     if (Array.isArray(teams) && teams.length > 0) {
         teamResultsDiv.innerHTML = teams.map(team =>
-            `<a href="http://localhost:8000/team/page/${team.slug}">${team.name}</a>`
+            `<a href="http://176.109.110.111/team/page/${team.slug}">${team.name}</a>`
         ).join('<br>');
     } else {
         teamResultsDiv.innerHTML = 'Команды не найдены';

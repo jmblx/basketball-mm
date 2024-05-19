@@ -85,7 +85,7 @@ function confirmReadyPlayer(matchId, userId) {
             .then(data => {
                 console.log(data);
                 if (data.status === 'confirmed') {
-                    document.getElementById('matchmakingStatus').textContent = 'You confirmed the match.';
+                    document.getElementById('matchmakingStatus').textContent = 'Вы приняли матч';
                 }
             });
     }
@@ -98,7 +98,7 @@ function notConfirmReadyPlayer(matchId, teamId) {
             .then(data => {
                 console.log(data);
                 if (data.status === 'search restarted for opposing team') {
-                    document.getElementById('matchmakingStatus').textContent = 'Match declined.';
+                    document.getElementById('matchmakingStatus').textContent = 'Матч отклонен';
                 }
             });
     }
@@ -131,7 +131,7 @@ function notConfirmReadyCaptain(matchId, teamId) {
 }
 
 function matchStarted() {
-    window.location = 'http://176.109.110.111//penis'
+    window.location = 'http://176.109.110.111/templates/match'
 }
 
 async function startFindingMatch(objectId, matchType) {
@@ -142,10 +142,10 @@ async function startFindingMatch(objectId, matchType) {
             method: 'POST'
         });
         if (response.ok) {
-            console.log('Searching for a match...');
+            console.log('Поиск нового матча...');
         }
         else {
-            alert('Failed to start matchmaking.');
+            alert('Не удалось начать матч');
         }
     } else {
         console.log('WebSocket не готов или отсутствует ID пользователя.');

@@ -25,6 +25,9 @@ function displayUserProfile(userData) {
     console.log("ID пользователя:", userData.id);
     const nickname = userData.nickname
     document.getElementById('userNickname').textContent = nickname || 'Гость'
+    console.log("Почта:", userData.email);
+    const email = userData.email
+    document.getElementById('userEmail').textContent = email
     console.log("Дата регистрации:", userData.registered_at);
     console.log("Соло рейтинг:", userData.rating);
     console.log("Групповой рейтинг:", userData.group_rating);
