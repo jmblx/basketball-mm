@@ -63,7 +63,7 @@ function startMatchmaking() {
         document.getElementById('matchmakingStatus').textContent = 'Searching for a match...';
     }
     else {
-        alert('Противник отклонил принятие матча');
+        alert('Вы не зарегистрированы в системе');
     }
 }
 

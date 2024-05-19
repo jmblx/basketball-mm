@@ -105,6 +105,10 @@ button:hover {
     justify-content: space-between;
 }
 
+.modalInfo {
+    display: block;
+}
+
 .modal-content img {
     width: 30px;
     height: 30px;

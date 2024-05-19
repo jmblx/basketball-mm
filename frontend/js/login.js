@@ -24,16 +24,15 @@ async function login(email, password) {
 
         if (!loginResponse.ok) {
             if (loginResponse.status === 404) {
-                alert("Пользователь не найден")
+                alert("Пользователь не найден");
                 throw new Error("Пользователь не найден");
             } else if (loginResponse.status === 401) {
-                alert("Неверный пароль")
+                alert("Неверный пароль");
                 throw new Error("Неверный пароль");
             } else {
                 throw new Error("Ошибка входа");
             }
         }
-        const email = document.getElementById('email').value;
 
         if (email) {
             localStorage.setItem('userEmail', email);
