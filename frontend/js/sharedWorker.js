@@ -131,7 +131,7 @@ function notConfirmReadyCaptain(matchId, teamId) {
 }
 
 function matchStarted() {
-    window.location = 'http://176.109.110.111/templates/match'
+    window.location.href = "http://176.109.110.111/templates/match.html";
 }
 
 async function startFindingMatch(objectId, matchType) {

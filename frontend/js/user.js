@@ -1,17 +1,21 @@
+let userData = null;
+
 document.addEventListener('DOMContentLoaded', function() {
     const nickname = localStorage.getItem('nickname');
     document.getElementById('userNickname').textContent = nickname || 'Гость';
 });
+
 document.addEventListener('DOMContentLoaded', function() {
     const userEmail = localStorage.getItem('email');
     if (userEmail) {
         document.getElementById('userEmail').textContent = userEmail;
     }
 });
+
 function logout() {
     localStorage.removeItem('auth_token');
-    localStorage.removeItem('nickname')
-    localStorage.removeItem('email')
+    localStorage.removeItem('nickname');
+    localStorage.removeItem('email');
     window.location.href = 'http://176.109.110.111/templates/index.html';
 }
 
@@ -38,6 +42,11 @@ function attemptUpload() {
 }
 
 async function uploadFile(file) {
+    if (!userData || !userData.id) {
+        console.error('Данные пользователя не загружены.');
+        return;
+    }
+
     const url = `http://176.109.110.111/profile/uploadfile/avatar/${userData.id}`;
 
     const formData = new FormData();
@@ -61,4 +70,3 @@ async function uploadFile(file) {
         alert(error.message);
     }
 }
-

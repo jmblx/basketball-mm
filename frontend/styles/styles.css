@@ -106,7 +106,15 @@ button:hover {
 }
 
 .modalInfo {
+    background-color: #fefefe;
+    margin: 15% auto;
+    border-radius: 30px;
+    padding: 10px;
+    border: 1px solid #888;
+    width: 70%;
     display: block;
+    font-style: normal;
+    color: #000000;
 }
 
 .modal-content img {

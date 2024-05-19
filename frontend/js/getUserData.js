@@ -12,7 +12,7 @@ async function fetchUserProfile() {
             throw new Error(`Ошибка запроса профиля: ${response.statusText}`);
         }
 
-        const userData = await response.json();
+        userData = await response.json();
         console.log('Данные профиля:', userData);
         displayUserProfile(userData);
 
@@ -23,17 +23,17 @@ async function fetchUserProfile() {
 
 function displayUserProfile(userData) {
     console.log("ID пользователя:", userData.id);
-    const nickname = userData.nickname
-    document.getElementById('userNickname').textContent = nickname || 'Гость'
+    const nickname = userData.nickname;
+    document.getElementById('userNickname').textContent = nickname || 'Гость';
     console.log("Дата регистрации:", userData.registered_at);
     console.log("Соло рейтинг:", userData.rating);
     console.log("Групповой рейтинг:", userData.group_rating);
 }
 
-fetchUserProfile()
+fetchUserProfile();
 
 function displaySavedEmail() {
-    const savedEmail = localStorage.getItem('email'); // Получаем email из localStorage
+    const savedEmail = localStorage.getItem('userEmail');
     const emailDisplayDiv = document.getElementById('userEmail');
 
     if (savedEmail) {
