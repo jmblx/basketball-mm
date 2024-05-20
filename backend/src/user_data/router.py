@@ -164,7 +164,7 @@ async def link_tg(
         return {"response": "произошла ошибка"}
 
 
-@router.get("/image/{path}")
+@router.get("/image/path/{path}")
 async def get_image(
     path: str
 ):
