@@ -58,7 +58,7 @@ span {
 }
 
 a {
-    color: #000000;
+    color: #FFFFFF;
     text-decoration: none;
 }
 
@@ -96,9 +96,14 @@ button:hover {
     align-items: center;
 }
 
+.modal a {
+    color: #000000;
+}
+
 .modal-content {
     background-color: #fefefe;
-    margin: auto;
+    margin: 15% auto;
+    border-radius: 30px;
     padding: 20px;
     border: 1px solid #888;
     width: 80%;
