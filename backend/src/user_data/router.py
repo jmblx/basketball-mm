@@ -162,3 +162,10 @@ async def link_tg(
     except IntegrityError:
         response.status_code = HTTP_404_NOT_FOUND
         return {"response": "произошла ошибка"}
+
+
+@router.get("/image/{user_id}")
+async def get_image(
+    path: str
+):
+    return FileResponse(path)
