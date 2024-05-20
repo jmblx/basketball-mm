@@ -28,7 +28,7 @@ function displayUserProfile(userData) {
     console.log("Дата регистрации:", userData.registered_at);
     console.log("Соло рейтинг:", userData.rating);
     console.log("Аватарка: ", userData.avatar_path);
-    document.getElementById('userAvatar').src = userData.avatar_path
+    document.getElementById('userAvatar').src = `$http://176.109.110.111/profile/image/${userData.avatar_path}`;
     console.log("Групповой рейтинг:", userData.group_rating);
 }
 
