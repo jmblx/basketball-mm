@@ -207,6 +207,7 @@ async def get_user_attrs(user: User):
         "id": user.id,
         "rating": user.solo_rating,
         "group_rating": user.rating_5x5,
+        "avatar_path": user.avatar_path,
         "details": None,
     }
 
