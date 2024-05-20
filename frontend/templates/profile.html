@@ -34,6 +34,8 @@
     <h2 id="userNickname" class="nickname"></h2>
     <h2 id="userEmail" style="text-align: center"><span style="color: #000000"></span></h2>
 <script src="http://176.109.110.111/js/user.js"></script>
-<script src="http://176.109.110.111/js/getUserData.js"></script>
+<script src="http://176.109.110.111/js/getUserData.js">
+    document.getElementById('userAvatar').src = `http://176.109.110.111/profile/image/${userData.id}`;
+</script>
 </body>
 </html>
