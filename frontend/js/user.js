@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function logout() {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('nickname');
-    localStorage.removeItem('email');
+    localStorage.removeItem('userEmail');
     window.location.href = 'http://176.109.110.111/templates/index.html';
 }
 
@@ -42,15 +42,25 @@ function attemptUpload() {
 }
 
 async function uploadFile(file) {
+    if (!file) {
+        console.error('Файл не выбран или не передан.');
+        return;
+    }
+
     if (!userData || !userData.id) {
-        console.error('Данные пользователя не загружены.');
+        console.error('Данные пользователя не загружены или отсутствует ID пользователя.');
         return;
     }
 
     const url = `http://176.109.110.111/profile/uploadfile/avatar/${userData.id}`;
 
     const formData = new FormData();
-    formData.append('avatar', file, file.name);
+    formData.append('file', file, file.name);
+
+    console.log('Отправка данных на сервер:');
+    console.log('URL:', url);
+    console.log('Файл:', file);
+    console.log('FormData:', ...formData.entries());
 
     try {
         const response = await fetch(url, {
@@ -59,12 +69,16 @@ async function uploadFile(file) {
         });
 
         if (!response.ok) {
-            throw new Error('Не удалось загрузить файл: ' + response.statusText);
+            const errorText = await response.text();
+            throw new Error('Не удалось загрузить файл: ' + response.statusText + ' - ' + errorText);
         }
 
         const result = await response.json();
         console.log('Файл успешно загружен:', result);
         alert('Файл успешно загружен!');
+
+        document.getElementById('userAvatar').src = `http://176.109.110.111/profile/image/${userData.id}`;
+
     } catch (error) {
         console.error('Ошибка при загрузке файла:', error);
         alert(error.message);

@@ -37,9 +37,9 @@ function displaySavedEmail() {
     const emailDisplayDiv = document.getElementById('userEmail');
 
     if (savedEmail) {
-        emailDisplayDiv.textContent = `Сохраненный email: ${savedEmail}`;
+        emailDisplayDiv.textContent = savedEmail;
     } else {
-        emailDisplayDiv.textContent = 'Сохраненный email отсутствует.';
+        emailDisplayDiv.textContent = 'Вы не вошли или не зарегистрировались в системе';
     }
 }
 
