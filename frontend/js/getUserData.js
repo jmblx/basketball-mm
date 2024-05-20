@@ -27,6 +27,8 @@ function displayUserProfile(userData) {
     document.getElementById('userNickname').textContent = nickname || 'Гость';
     console.log("Дата регистрации:", userData.registered_at);
     console.log("Соло рейтинг:", userData.rating);
+    console.log("Аватарка: ", userData.avatar_path);
+    document.getElementById('userAvatar').src = userData.avatar_path
     console.log("Групповой рейтинг:", userData.group_rating);
 }
 
