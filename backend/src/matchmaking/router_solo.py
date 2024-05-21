@@ -56,6 +56,8 @@ async def websocket_endpoint(
     except WebSocketDisconnect:
         await redis.zrem("user_search_queue", str(userid))
         del connected_users[userid]
+
+
 # connected_users = defaultdict(list)
 #
 #

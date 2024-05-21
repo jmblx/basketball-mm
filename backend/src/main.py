@@ -20,6 +20,7 @@ from auth.schemas import UserCreate, UserRead, UserUpdate
 
 # from config import SENTRY_URL, SECRET_AUTH
 from auth.custom_auth_router import router as custom_auth_router
+from utils import routers_to_app
 from config import REDIS_HOST, REDIS_PORT, SECRET_AUTH
 from match.router import router as match_data_router
 from matchmaking.router_solo import router as matchmaking_solo_router
@@ -69,20 +70,24 @@ app.include_router(
     tags=["users"],
 )
 
-app.include_router(custom_auth_router)
-app.include_router(teams_router)
-app.include_router(tournaments_router)
-app.include_router(user_data_router)
-app.include_router(match_data_router)
-app.include_router(matchmaking_solo_router)
-app.include_router(matchmaking_5x5_router)
-app.include_router(matchmaking_5x5_router_add)
-app.include_router(pages_router)
-app.include_router(solomatch_router_add)
-app.include_router(stats_router)
-app.include_router(report_router)
-app.include_router(social_router)
-app.include_router(news_router)
+routers_list = [
+    custom_auth_router,
+    teams_router,
+    tournaments_router,
+    user_data_router,
+    match_data_router,
+    matchmaking_solo_router,
+    matchmaking_5x5_router,
+    matchmaking_5x5_router_add,
+    pages_router,
+    solomatch_router_add,
+    stats_router,
+    report_router,
+    social_router,
+    news_router,
+]
+
+app = routers_to_app(app, routers_list)
 
 
 app.include_router(

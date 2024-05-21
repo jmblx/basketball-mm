@@ -27,4 +27,3 @@ class Message(BaseModel):
     current_solo_rating: int
     opponent_nickname: str
     telegram_id: int
-

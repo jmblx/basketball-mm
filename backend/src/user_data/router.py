@@ -165,7 +165,5 @@ async def link_tg(
 
 
 @router.get("/image/path/{path}")
-async def get_image(
-    path: str
-):
+async def get_image(path: str):
     return FileResponse(path)
