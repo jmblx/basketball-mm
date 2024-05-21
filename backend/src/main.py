@@ -87,7 +87,7 @@ routers_list = [
     news_router,
 ]
 
-app = routers_to_app(app, [custom_auth_router, routers_list])
+app = routers_to_app(app, routers_list)
 
 
 app.include_router(
