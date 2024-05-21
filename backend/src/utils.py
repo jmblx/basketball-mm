@@ -1,8 +1,9 @@
 # import aiofiles
 import os
+from fastapi import FastAPI, APIRouter
 import zipfile
 import io
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 from pydantic import BaseModel
 from slugify import slugify
@@ -326,24 +327,36 @@ async def get_match_data(class_, obj_id: int):
     async with async_session_maker() as session:
 
         if class_ == SoloMatch:
-            match = (await session.get(class_, obj_id))
-            first_player = await session.get(User, match.scores.get("first_player").get("id"))
-            second_player = await session.get(User, match.scores.get("second_player").get("id"))
+            match = await session.get(class_, obj_id)
+            first_player = await session.get(
+                User, match.scores.get("first_player").get("id")
+            )
+            second_player = await session.get(
+                User, match.scores.get("second_player").get("id")
+            )
             return {
                 "first_player_id": first_player.id,
-                "first_player_score": match.scores.get("first_player").get("score"),
+                "first_player_score": match.scores.get("first_player").get(
+                    "score"
+                ),
                 "first_player_nickname": first_player.nickname,
                 "first_player_image": first_player.pathfile,
                 "second_player_id": second_player.id,
-                "second_player_score": match.scores.get("second_player").get("score"),
+                "second_player_score": match.scores.get("second_player").get(
+                    "score"
+                ),
                 "second_player_nickname": second_player.nickname,
                 "second_player_image": second_player.pathfile,
                 "match_status": match.status,
             }
         if class_ == Match5x5:
-            match = (await session.get(class_, obj_id))
-            first_team = await session.get(Team, match.scores.get("team1").get("team_id"))
-            second_team = await session.get(Team, match.scores.get("team2").get("team_id"))
+            match = await session.get(class_, obj_id)
+            first_team = await session.get(
+                Team, match.scores.get("team1").get("team_id")
+            )
+            second_team = await session.get(
+                Team, match.scores.get("team2").get("team_id")
+            )
             return {
                 "first_team_id": first_team.id,
                 "first_team_score": match.scores.get("first_team_score"),
@@ -355,5 +368,11 @@ async def get_match_data(class_, obj_id: int):
                 "second_team_image": second_team.pathfile,
                 "match_status": match.status,
             }
-        #if class_ == Match:
+        # if class_ == Match:
         return Exception("Unknown match class")
+
+
+def routers_to_app(app: FastAPI, routers: List[APIRouter]):
+    for router in routers:
+        app.include_router(router)
+    return app

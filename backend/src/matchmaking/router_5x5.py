@@ -69,7 +69,6 @@ async def remove_team_from_search(team_id: str, redis):
     await redis.zrem("team_search_queue", team_id)
 
 
-
 async def find_opponent(team_id: int, team_rating: int, threshold: int, redis):
     opponents = await redis.zrangebyscore(
         "team_search_queue",
