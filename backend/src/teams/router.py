@@ -107,8 +107,6 @@ async def add_new_team(
     user: User = Depends(current_user),
     session: AsyncSession = Depends(get_async_session),
 ):
-    # Создание слага
-
     team = Team(**team_params.model_dump())
     slug = slugify(team.name, lowercase=True)
     team.slug = slug

@@ -19,10 +19,11 @@ class TestTeam:
     async def test_create_team(
         self, ac: AsyncClient, authenticated_data: dict
     ):
+        name = "TesT NaMme"
         response = await ac.post(
             "/team/add-new-team",
             json={
-                "name": "ТЕСТОвая тим казлоф и уродов",
+                "name": name,
                 "pathfile": "string",
             },
             headers={
@@ -36,9 +37,9 @@ class TestTeam:
         assert str(res.captain_id) == authenticated_data.get("user_data").get(
             "id"
         )
-        assert res.name == "ТЕСТОвая тим казлоф и уродов"
+        assert res.name == name
         assert res.slug == slugify(
-            "ТЕСТОвая тим казлоф и уродов", lowercase=True
+            name, lowercase=True
         )
 
     async def test_join_team(
