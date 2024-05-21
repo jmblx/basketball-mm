@@ -53,7 +53,7 @@ async def fix_password(message: types.Message, state: FSMContext, redis: Redis):
         await redis.sadd(f"auth:{message.from_user.id}", token)
         link_response = await link(tg_id=message.from_user.id, email=user_data["email"])
         await message.answer(
-            f"Успех! Теперь вам будут приходить новости нашей площадки и результаты со статистикой матчей. {link_response}"
+            f"Успех! Теперь вам будут приходить новости нашей площадки и результаты со статистикой матчей."
         )
     else:
         await message.answer("Неверный логин и/или пароль")
