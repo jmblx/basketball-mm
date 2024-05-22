@@ -22,6 +22,7 @@ class SetSoloMatchResult(BaseModel):
 
 
 class Message(BaseModel):
+    match_type: str
     match_result: str
     solo_rating_change: int
     current_solo_rating: int
