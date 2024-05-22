@@ -103,6 +103,7 @@ async def set_solomatch_result(
                 solo_rating_change=0,
                 current_solo_rating=loser.solo_rating,
                 opponent_nickname=winner.nickname,
+                telegram_id=int(loser.tg_id)
             )
         }
         message_to_produce = json.dumps(loser_message.model_dump()).encode(
