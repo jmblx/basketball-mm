@@ -92,6 +92,7 @@ async def set_solomatch_result(
                 telegram_id=int(winner.tg_id)
             )
         }
+        winner_message[str(loser.tg_id)] = winner_message[str(winner.tg_id)].model_dump()
         message_to_produce = json.dumps(winner_message).encode(
             encoding="utf-8"
         )
@@ -107,7 +108,8 @@ async def set_solomatch_result(
                 telegram_id=int(loser.tg_id)
             )
         }
-        message_to_produce = json.dumps(loser_message).encode(
+        loser_message[str(loser.tg_id)] = loser_message[str(loser.tg_id)].model_dump()
+        message_to_produce = json.dumps().encode(
             encoding="utf-8"
         )
         await producer.send(value=message_to_produce)
