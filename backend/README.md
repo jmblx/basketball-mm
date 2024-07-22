@@ -1,4 +1,4 @@
-# Rinh-hack. Center-invest-case
+# Backend basketball-mm
 ## Процесс разработки
 ### Создания виртуального окружения
 ```shell
